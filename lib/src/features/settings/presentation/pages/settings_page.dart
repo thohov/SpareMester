@@ -450,8 +450,25 @@ class SettingsPage extends ConsumerWidget {
             trailing: const Icon(Icons.open_in_new),
             onTap: () async {
               final url = Uri.parse('https://github.com/thohov/SpareMester');
-              if (await canLaunchUrl(url)) {
-                await launchUrl(url, mode: LaunchMode.externalApplication);
+              try {
+                final canLaunch = await canLaunchUrl(url);
+                if (canLaunch) {
+                  await launchUrl(url);
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Kunne ikke åpne lenken. Ingen nettleser funnet.'),
+                      ),
+                    );
+                  }
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Feil ved åpning av lenke: $e')),
+                  );
+                }
               }
             },
           ),
