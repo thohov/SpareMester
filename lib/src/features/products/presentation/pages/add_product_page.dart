@@ -5,6 +5,7 @@ import 'package:pengespareapp/src/core/providers/products_provider.dart';
 import 'package:pengespareapp/src/core/providers/settings_provider.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product_category.dart';
 import 'package:pengespareapp/src/core/services/url_metadata_service.dart';
+import 'package:pengespareapp/src/core/services/error_log_service.dart';
 
 class AddProductPage extends ConsumerStatefulWidget {
   const AddProductPage({super.key});
@@ -148,6 +149,18 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
         Navigator.of(context).pop();
       }
     } catch (e) {
+      // Log error for debugging
+      ErrorLogService.logError(
+        errorType: 'AddProductError',
+        errorMessage: e.toString(),
+        additionalContext: {
+          'action': 'save_product',
+          'hasUrl': url != null,
+          'hasImageUrl': imageUrl != null,
+          'category': _selectedCategory.toString(),
+        },
+      );
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

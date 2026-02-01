@@ -6,6 +6,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:pengespareapp/l10n/app_localizations.dart';
 import 'package:pengespareapp/src/core/database/database_service.dart';
 import 'package:pengespareapp/src/core/services/notification_service.dart';
+import 'package:pengespareapp/src/core/services/error_log_service.dart';
 import 'package:pengespareapp/src/features/achievements/services/achievement_service.dart';
 import 'package:pengespareapp/src/core/theme/app_theme.dart';
 import 'package:pengespareapp/src/core/providers/settings_provider.dart';
@@ -14,6 +15,9 @@ import 'package:pengespareapp/src/features/home/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize error logging first
+  await ErrorLogService.initialize();
   
   // Initialize timezone database
   tz.initializeTimeZones();

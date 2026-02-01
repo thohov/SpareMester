@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pengespareapp/l10n/app_localizations.dart';
 import 'package:pengespareapp/src/core/providers/settings_provider.dart';
 import 'package:pengespareapp/src/features/settings/data/app_settings.dart';
 import 'package:pengespareapp/src/core/services/notification_service.dart';
+import 'package:pengespareapp/src/core/services/error_log_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -475,6 +477,28 @@ class SettingsPage extends ConsumerWidget {
 
           const Divider(),
 
+          // Error Log (Developer/Debug feature)
+          ListTile(
+            leading: Icon(
+              Icons.bug_report,
+              color: ErrorLogService.getLogCount() > 0
+                  ? Colors.orange
+                  : null,
+            ),
+            title: const Text('Feillogg'),
+            subtitle: Text(
+              ErrorLogService.getLogCount() > 0
+                  ? '${ErrorLogService.getLogCount()} feil logget'
+                  : 'Ingen feil logget',
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              _showErrorLogDialog(context);
+            },
+          ),
+
+          const Divider(),
+
           // App Version
           ListTile(
             leading: const Icon(Icons.info_outline),
@@ -633,6 +657,227 @@ class SettingsPage extends ConsumerWidget {
               }
             },
             child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showErrorLogDialog(BuildContext context) {
+    final logs = ErrorLogService.getAllLogs();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.bug_report, color: Colors.orange),
+            const SizedBox(width: 8),
+            const Text('Feillogg'),
+            const Spacer(),
+            if (logs.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.delete_outline, size: 20),
+                onPressed: () async {
+                  await ErrorLogService.clearLogs();
+                  if (context.mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Feillogg tømt')),
+                    );
+                  }
+                },
+                tooltip: 'Slett alle logger',
+              ),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: logs.isEmpty
+              ? const Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check_circle, size: 64, color: Colors.green),
+                      SizedBox(height: 16),
+                      Text(
+                        'Ingen feil logget ✅',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Appen fungerer perfekt!',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.privacy_tip, size: 20, color: Colors.blue),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Personvernsikker logg\nInneholder ingen personlige data',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: logs.length,
+                        separatorBuilder: (_, __) => const Divider(),
+                        itemBuilder: (context, index) {
+                          final log = logs[index];
+                          return ListTile(
+                            dense: true,
+                            leading: const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                            title: Text(
+                              log.errorType,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text(
+                                  log.errorMessage,
+                                  style: const TextStyle(fontSize: 11),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  DateTime.parse(log.timestamp).toString().substring(0, 19),
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            onTap: () {
+                              _showLogDetailDialog(context, log);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Lukk'),
+          ),
+          if (logs.isNotEmpty)
+            FilledButton.icon(
+              onPressed: () async {
+                final logText = ErrorLogService.getLogsAsText();
+                await Clipboard.setData(ClipboardData(text: logText));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('📋 Feillogg kopiert til utklippstavlen'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+              icon: const Icon(Icons.copy, size: 18),
+              label: const Text('Kopier'),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogDetailDialog(BuildContext context, ErrorLogEntry log) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(log.errorType),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Tidspunkt:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              Text(DateTime.parse(log.timestamp).toString()),
+              const SizedBox(height: 16),
+              Text(
+                'Feilmelding:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+              Text(log.errorMessage),
+              if (log.stackTrace != null && log.stackTrace!.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Stack Trace:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    log.stackTrace!,
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Lukk'),
+          ),
+          TextButton.icon(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: log.toString()));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Kopiert til utklippstavlen')),
+                );
+              }
+            },
+            icon: const Icon(Icons.copy, size: 18),
+            label: const Text('Kopier'),
           ),
         ],
       ),
