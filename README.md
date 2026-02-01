@@ -24,16 +24,41 @@ SpareMester samler INGEN data. Alt lagres lokalt på din telefon:
 
 ## 📥 Installasjon
 
-**For Android:**
+### Metode 1: Last ned ferdig APK (Anbefalt)
 
-1. Last ned den siste APK-filen fra utvikleren
-2. Aktiver "Installer ukjente apper" i telefonens innstillinger
-3. Installer APK-filen
-4. Åpne SpareMester og gjennomfør onboarding
+1. **Last ned APK:**
+   - Gå til [Releases-siden](https://github.com/thohov/SpareMester/releases)
+   - Last ned `app-release.apk` fra den nyeste versjonen
 
-**Eller bygg selv:**
+2. **Aktiver ukjente apper:**
+   - Åpne **Innstillinger** på Android-telefonen
+   - Gå til **Apper** eller **Sikkerhet**
+   - Finn **Installer ukjente apper**
+   - Velg nettleseren du lastet ned APK med (f.eks. Chrome)
+   - Aktiver **Tillat fra denne kilden**
+
+3. **Installer APK:**
+   - Åpne nedlastingsmappen på telefonen
+   - Trykk på `app-release.apk`
+   - Følg installasjonsinstruksjonene
+   - Trykk **Installer**
+
+4. **Kjør appen:**
+   - Åpne SpareMester fra app-listen
+   - Gjennomfør onboarding (10 kort introduksjon)
+   - Begynn å spare penger! 💰
+
+### Metode 2: Bygg selv fra kildekode
+
 ```bash
+# Klon repository
+git clone https://github.com/thohov/SpareMester.git
+cd SpareMester
+
+# Installer dependencies
 flutter pub get
+
+# Bygg release APK
 flutter build apk --release
 ```
 APK-filen ligger i: `build/app/outputs/flutter-apk/app-release.apk`
