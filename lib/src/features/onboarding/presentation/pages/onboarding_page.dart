@@ -262,23 +262,19 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         skip: Text(l10n.skip),
         next: Text(l10n.next),
         done: Text(l10n.done, style: const TextStyle(fontWeight: FontWeight.w600)),
-        bodyPadding: const EdgeInsets.all(16),
-        controlsPadding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        controlsMargin: const EdgeInsets.only(top: 24),
+        bodyPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        controlsPadding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+        controlsMargin: const EdgeInsets.all(0),
         dotsContainerDecorator: BoxDecoration(
           color: theme.colorScheme.surface.withOpacity(0.5),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: theme.colorScheme.outline.withOpacity(0.2),
-            width: 1,
-          ),
         ),
         dotsDecorator: DotsDecorator(
-          size: const Size.square(8.0),
-          activeSize: const Size(16.0, 8.0),
+          size: const Size.square(4.0),
+          activeSize: const Size(8.0, 4.0),
           activeColor: theme.colorScheme.primary,
           color: theme.colorScheme.outline,
-          spacing: const EdgeInsets.symmetric(horizontal: 4.0),
+          spacing: const EdgeInsets.symmetric(horizontal: 1.5),
           activeShape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25.0),
           ),
@@ -299,12 +295,13 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
         fontSize: 16,
         color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
       ),
-      imagePadding: const EdgeInsets.only(top: 60),
+      imagePadding: const EdgeInsets.only(top: 40, bottom: 8),
       pageColor: Theme.of(context).colorScheme.background,
       contentMargin: const EdgeInsets.symmetric(horizontal: 16),
       bodyAlignment: Alignment.center,
       imageAlignment: Alignment.topCenter,
-      footerPadding: const EdgeInsets.only(bottom: 80),
+      footerPadding: const EdgeInsets.only(bottom: 140),
+      titlePadding: const EdgeInsets.only(top: 8, bottom: 8),
     );
   }
 }
