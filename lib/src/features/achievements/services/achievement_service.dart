@@ -10,9 +10,7 @@ class AchievementService {
   Box<Achievement>? _box;
 
   Future<void> initialize() async {
-    if (!Hive.isAdapterRegistered(4)) {
-      Hive.registerAdapter(AchievementAdapter());
-    }
+    // Adapter is already registered in DatabaseService.init()
     _box = await Hive.openBox<Achievement>(_boxName);
     
     // Initialize all achievements if not already done

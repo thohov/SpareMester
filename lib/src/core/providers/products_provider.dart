@@ -162,29 +162,26 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
   
   Future<List<Achievement>> _updateStreakAndAchievements() async {
     // Update streak in settings
-    final settingsBox = await Hive.openBox<AppSettings>('settings');
-    final settings = settingsBox.get('app_settings');
-    if (settings != null) {
-      settings.updateStreak();
-      
-      // Check for newly unlocked achievements
-      final achievementService = AchievementService();
-      await achievementService.initialize();
-      
-      // Get all products (active + archived)
-      final allProducts = [
-        ...DatabaseService.getActiveProducts(),
-        ...DatabaseService.getArchivedProducts(),
-      ];
-      
-      final newAchievements = await achievementService.checkAchievements(
-        allProducts: allProducts,
-        currentStreak: settings.currentStreak,
-      );
-      
-      return newAchievements;
-    }
-    return [];
+    final settings = DatabaseService.getSettings();
+    settings.updateStreak();
+    await DatabaseService.updateSettings(settings);
+    
+    // Check for newly unlocked achievements
+    final achievementService = AchievementService();
+    await achievementService.initialize();
+    
+    // Get all products (active + archived)
+    final allProducts = [
+      ...DatabaseService.getActiveProducts(),
+      ...DatabaseService.getArchivedProducts(),
+    ];
+    
+    final newAchievements = await achievementService.checkAchievements(
+      allProducts: allProducts,
+      currentStreak: settings.currentStreak,
+    );
+    
+    return newAchievements;
   }
 
   // Get products by status
