@@ -24,7 +24,19 @@ SpareMester samler INGEN data. Alt lagres lokalt på din telefon:
 
 ## 📥 Installasjon
 
-Last ned APK-filen fra [Releases](https://github.com/thohov/SpareMester/releases)
+**For Android:**
+
+1. Last ned den siste APK-filen fra utvikleren
+2. Aktiver "Installer ukjente apper" i telefonens innstillinger
+3. Installer APK-filen
+4. Åpne SpareMester og gjennomfør onboarding
+
+**Eller bygg selv:**
+```bash
+flutter pub get
+flutter build apk --release
+```
+APK-filen ligger i: `build/app/outputs/flutter-apk/app-release.apk`
 
 ## 🛠️ Bygget med
 
