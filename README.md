@@ -38,7 +38,7 @@ Se [LICENSE](LICENSE) filen for detaljer. Koden er tilgjengelig for inspeksjon, 
 
 ## 👨‍💻 Utvikler
 
-Laget med ❤️ av Thomas Hovda
+Laget med ❤️ av Thomas Øie-Hovland
 
 ---
 
