@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pengespareapp/src/core/database/database_service.dart';
 import 'package:pengespareapp/src/core/services/notification_service.dart';
+import 'package:pengespareapp/src/core/services/error_log_service.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product_category.dart';
 import 'package:pengespareapp/src/features/achievements/services/achievement_service.dart';
@@ -11,7 +12,7 @@ import 'package:uuid/uuid.dart';
 
 // Products provider
 final productsProvider = StateNotifierProvider<ProductsNotifier, List<Product>>((ref) {
-  return ProductsNotifier();
+  return ProductsNotifier(ref);
 });
 
 // All products provider (including archived)
@@ -34,10 +35,14 @@ class AllProductsNotifier extends StateNotifier<List<Product>> {
 }
 
 class ProductsNotifier extends StateNotifier<List<Product>> {
-  ProductsNotifier() : super(DatabaseService.getActiveProducts());
+  final Ref ref;
+  
+  ProductsNotifier(this.ref) : super(DatabaseService.getActiveProducts());
 
   void refresh() {
     state = DatabaseService.getActiveProducts();
+    // Also refresh allProductsProvider to keep dashboard in sync
+    ref.read(allProductsProvider.notifier).refresh();
   }
 
   Future<Product> addProduct({
@@ -48,33 +53,55 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
     required int desireScore,
     ProductCategory category = ProductCategory.other,
   }) async {
-    final settings = DatabaseService.getSettings();
-    final timerEndDate = settings.calculateWaitingPeriod(price);
+    try {
+      final settings = DatabaseService.getSettings();
+      final timerEndDate = settings.calculateWaitingPeriod(price);
 
-    final product = Product(
-      id: const Uuid().v4(),
-      name: name,
-      price: price,
-      url: url,
-      imageUrl: imageUrl,
-      desireScore: desireScore,
-      createdAt: DateTime.now(),
-      timerEndDate: timerEndDate,
-      status: ProductStatus.waiting,
-      category: category,
-    );
+      final product = Product(
+        id: const Uuid().v4(),
+        name: name,
+        price: price,
+        url: url,
+        imageUrl: imageUrl,
+        desireScore: desireScore,
+        createdAt: DateTime.now(),
+        timerEndDate: timerEndDate,
+        status: ProductStatus.waiting,
+        category: category,
+      );
 
-    await DatabaseService.addProduct(product);
-    
-    // Schedule notification for when timer ends
-    await NotificationService().scheduleProductNotification(
-      productId: product.id,
-      productName: product.name,
-      scheduledTime: product.timerEndDate,
-    );
-    
-    refresh();
-    return product;
+      await DatabaseService.addProduct(product);
+      
+      // Schedule notification for when timer ends
+      try {
+        await NotificationService().scheduleProductNotification(
+          productId: product.id,
+          productName: product.name,
+          scheduledTime: product.timerEndDate,
+        );
+      } catch (e) {
+        // Log notification error but don't fail the whole operation
+        print('⚠️ Failed to schedule notification: $e');
+      }
+      
+      refresh();
+      return product;
+    } catch (e, stackTrace) {
+      // Log the error for debugging
+      ErrorLogService.logError(
+        errorType: 'AddProductProviderError',
+        errorMessage: e.toString(),
+        stackTrace: stackTrace.toString(),
+        additionalContext: {
+          'productName': '[REDACTED]',
+          'price': '[REDACTED]',
+          'category': category.toString(),
+        },
+      );
+      print('❌ Error adding product: $e');
+      print('Stack trace: $stackTrace');
+      rethrow;
+    }
   }
 
   Future<void> updateProduct(Product product) async {

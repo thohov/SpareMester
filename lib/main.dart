@@ -16,16 +16,16 @@ import 'package:pengespareapp/src/features/home/home_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize error logging first
-  await ErrorLogService.initialize();
-  
   // Initialize timezone database
   tz.initializeTimeZones();
   // Set local timezone to Oslo/Europe (Norway)
   tz.setLocalLocation(tz.getLocation('Europe/Oslo'));
   
-  // Initialize Hive database
+  // Initialize Hive database FIRST (required by ErrorLogService)
   await DatabaseService.init();
+  
+  // Initialize error logging after Hive is ready
+  await ErrorLogService.initialize();
   
   // Initialize achievement service
   await AchievementService().initialize();
