@@ -11,7 +11,13 @@ class AchievementService {
 
   Future<void> initialize() async {
     // Adapter is already registered in DatabaseService.init()
-    _box = await Hive.openBox<Achievement>(_boxName);
+    try {
+      _box = await Hive.openBox<Achievement>(_boxName);
+    } catch (e) {
+      print('⚠️ Achievements box corrupt, deleting and recreating: $e');
+      await Hive.deleteBoxFromDisk(_boxName);
+      _box = await Hive.openBox<Achievement>(_boxName);
+    }
     
     // Initialize all achievements if not already done
     for (final type in AchievementType.values) {
