@@ -1,16 +1,45 @@
-# pengespareapp
+# SpareMester 🛍️💰
 
-A new Flutter project.
+**App for å forhindre spontankjøp i hverdagen.**
 
-## Getting Started
+SpareMester hjelper deg med å ta bedre kjøpsbeslutninger ved å gi deg tid til å tenke deg om før du kjøper noe. Legg til produkter du ønsker, og appen setter en automatisk tenketid basert på prisen.
 
-This project is a starting point for a Flutter application.
+## ✨ Funksjoner
 
-A few resources to get you started if this is your first Flutter project:
+- ⏳ **Automatiske ventetider** - Jo dyrere produkt, jo lengre tenketid
+- 🔔 **Varsler** - Få beskjed når tenketiden er over
+- 📊 **Statistikk** - Se hvor mye du har spart
+- 🏆 **Prestasjoner** - Lås opp over 30 achievements
+- 📱 **100% Offline** - All data lagres lokalt på telefonen
+- 🚫 **Ingen datainnsamling** - Din informasjon forblir privat
+- 🎨 **Norsk & Engelsk** - Velg ditt foretrukne språk
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🔒 Personvern
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+SpareMester samler INGEN data. Alt lagres lokalt på din telefon:
+- Ingen brukerprofil
+- Ingen servere
+- Ingen analysedata
+- Ingen annonsering
+
+## 📥 Installasjon
+
+Last ned APK-filen fra [Releases](https://github.com/thohov/SpareMester/releases)
+
+## 🛠️ Bygget med
+
+- Flutter & Dart
+- Hive (lokal database)
+- Flutter Local Notifications
+
+## 📄 Lisens
+
+Se [LICENSE](LICENSE) filen for detaljer. Koden er tilgjengelig for inspeksjon, men ikke for kommersiell bruk.
+
+## 👨‍💻 Utvikler
+
+Laget med ❤️ av Thomas Hovda
+
+---
+
+*Laget for å ikke bruke penger på unødvendig dritt <3*
