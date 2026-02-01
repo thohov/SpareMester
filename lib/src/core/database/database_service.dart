@@ -2,6 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product_category.dart';
 import 'package:pengespareapp/src/features/settings/data/app_settings.dart';
+import 'package:pengespareapp/src/features/achievements/data/achievement.dart';
 
 class DatabaseService {
   static const String settingsBoxName = 'settings';
@@ -17,6 +18,7 @@ class DatabaseService {
     Hive.registerAdapter(PurchaseDecisionAdapter());
     Hive.registerAdapter(AppSettingsAdapter());
     Hive.registerAdapter(ProductCategoryAdapter());
+    Hive.registerAdapter(AchievementAdapter());
 
     // Open boxes
     await Hive.openBox<AppSettings>(settingsBoxName);
