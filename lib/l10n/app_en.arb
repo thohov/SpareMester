@@ -1,0 +1,285 @@
+{
+  "@@locale": "en",
+  "appTitle": "SpareMester",
+  "@appTitle": {
+    "description": "The application title"
+  },
+  "onboardingTitle1": "Stop Impulse Buying",
+  "@onboardingTitle1": {
+    "description": "First onboarding screen title"
+  },
+  "onboardingDesc1": "Add items you want to buy and wait before purchasing. Let time decide if you really need it.",
+  "@onboardingDesc1": {
+    "description": "First onboarding screen description"
+  },
+  "onboardingTitle2": "Choose Your Currency",
+  "@onboardingTitle2": {
+    "description": "Second onboarding screen title"
+  },
+  "onboardingDesc2": "Select the currency you use for your purchases.",
+  "@onboardingDesc2": {
+    "description": "Second onboarding screen description"
+  },
+  "onboardingTitle3": "Time is Money",
+  "@onboardingTitle3": {
+    "description": "Third onboarding screen title"
+  },
+  "onboardingDesc3": "Enter your hourly wage. We'll show you how many work hours each item costs.",
+  "@onboardingDesc3": {
+    "description": "Third onboarding screen description"
+  },
+  "next": "Next",
+  "@next": {
+    "description": "Next button"
+  },
+  "done": "Done",
+  "@done": {
+    "description": "Done button"
+  },
+  "skip": "Skip",
+  "@skip": {
+    "description": "Skip button"
+  },
+  "currency": "Currency",
+  "@currency": {
+    "description": "Currency label"
+  },
+  "hourlyWage": "Hourly Wage",
+  "@hourlyWage": {
+    "description": "Hourly wage input label"
+  },
+  "enterHourlyWage": "Enter your hourly wage",
+  "@enterHourlyWage": {
+    "description": "Hourly wage input hint"
+  },
+  "dashboard": "Dashboard",
+  "@dashboard": {
+    "description": "Dashboard tab label"
+  },
+  "products": "Products",
+  "@products": {
+    "description": "Products tab label"
+  },
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings tab label"
+  },
+  "moneySaved": "Money Saved",
+  "@moneySaved": {
+    "description": "Money saved stat label"
+  },
+  "hoursSaved": "Hours Saved",
+  "@hoursSaved": {
+    "description": "Hours saved stat label"
+  },
+  "impulseControlScore": "Impulse Control Score",
+  "@impulseControlScore": {
+    "description": "Impulse control score label"
+  },
+  "addProduct": "Add Product",
+  "@addProduct": {
+    "description": "Add product button"
+  },
+  "productName": "Product Name",
+  "@productName": {
+    "description": "Product name field label"
+  },
+  "price": "Price",
+  "@price": {
+    "description": "Price field label"
+  },
+  "url": "URL",
+  "@url": {
+    "description": "URL field label"
+  },
+  "desireScore": "Desire Score",
+  "@desireScore": {
+    "description": "Desire score slider label"
+  },
+  "workHours": "{hours} work hours",
+  "@workHours": {
+    "description": "Work hours calculation",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "iAmWeak": "I Am Weak",
+  "@iAmWeak": {
+    "description": "Impulse buy button during countdown"
+  },
+  "stillWantThis": "Do you still want this?",
+  "@stillWantThis": {
+    "description": "Question after timer finishes"
+  },
+  "yes": "Yes",
+  "@yes": {
+    "description": "Yes button"
+  },
+  "no": "No",
+  "@no": {
+    "description": "No button"
+  },
+  "impulseBuy": "Impulse Buy",
+  "@impulseBuy": {
+    "description": "Impulse buy label"
+  },
+  "plannedPurchase": "Planned Purchase",
+  "@plannedPurchase": {
+    "description": "Planned purchase label"
+  },
+  "language": "Language",
+  "@language": {
+    "description": "Language setting label"
+  },
+  "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
+  "norwegian": "Norwegian",
+  "@norwegian": {
+    "description": "Norwegian language option"
+  },
+  "enterProductName": "Enter product name",
+  "@enterProductName": {
+    "description": "Product name hint"
+  },
+  "enterPrice": "Enter price",
+  "@enterPrice": {
+    "description": "Price hint"
+  },
+  "optionalUrl": "https://... (optional)",
+  "@optionalUrl": {
+    "description": "URL hint"
+  },
+  "howMuchDoYouWantThis": "How much do you want this?",
+  "@howMuchDoYouWantThis": {
+    "description": "Desire score label"
+  },
+  "notMuch": "Not much",
+  "@notMuch": {
+    "description": "Low desire label"
+  },
+  "veryMuch": "Very much",
+  "@veryMuch": {
+    "description": "High desire label"
+  },
+  "thisWillCost": "This will cost you",
+  "@thisWillCost": {
+    "description": "Work hours cost label"
+  },
+  "hoursOfWork": "{hours} hours of work",
+  "@hoursOfWork": {
+    "description": "Hours of work display",
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingPeriod": "Waiting period: {period}",
+  "@waitingPeriod": {
+    "description": "Waiting period display",
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "hours": "{count} hours",
+  "@hours": {
+    "description": "Hours unit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "days": "{count} days",
+  "@days": {
+    "description": "Days unit",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Save button"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button"
+  },
+  "pleaseEnterName": "Please enter a product name",
+  "@pleaseEnterName": {
+    "description": "Name validation error"
+  },
+  "pleaseEnterPrice": "Please enter a price",
+  "@pleaseEnterPrice": {
+    "description": "Price validation error"
+  },
+  "pleaseEnterValidPrice": "Please enter a valid price",
+  "@pleaseEnterValidPrice": {
+    "description": "Invalid price error"
+  },
+  "productAdded": "Product added! Wait {period} before deciding.",
+  "@productAdded": {
+    "description": "Success message after adding product",
+    "placeholders": {
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "active": "Active",
+  "@active": {
+    "description": "Active products tab"
+  },
+  "archive": "Archive",
+  "@archive": {
+    "description": "Archived products tab"
+  },
+  "noProductsYet": "No products yet",
+  "@noProductsYet": {
+    "description": "Empty state message"
+  },
+  "tapPlusToAdd": "Tap + to add your first item",
+  "@tapPlusToAdd": {
+    "description": "Empty state hint"
+  },
+  "timeRemaining": "Time remaining",
+  "@timeRemaining": {
+    "description": "Countdown label"
+  },
+  "timerFinished": "Timer finished!",
+  "@timerFinished": {
+    "description": "Timer complete label"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button"
+  },
+  "archive": "Archive",
+  "@archive": {
+    "description": "Archive page title"
+  },
+  "noArchivedProducts": "No archived products",
+  "@noArchivedProducts": {
+    "description": "Empty archive state"
+  },
+  "archivedProductsAppearHere": "Products you've made decisions about will appear here",
+  "@archivedProductsAppearHere": {
+    "description": "Archive empty state description"
+  },
+  "decisionMade": "Decision made",
+  "@decisionMade": {
+    "description": "Decision made label"
+  },
+  "unknown": "Unknown",
+  "@unknown": {
+    "description": "Unknown value"
+  }
+}
