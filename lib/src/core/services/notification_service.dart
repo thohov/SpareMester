@@ -39,10 +39,34 @@ class NotificationService {
       android: androidSettings,
     );
 
-    await _notifications.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: _onNotificationTapped,
-    );
+    try {
+      await _notifications.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: _onNotificationTapped,
+      );
+    } catch (e) {
+      print('⚠️ Notification initialization failed, clearing corrupt data: $e');
+      // Try to cancel all notifications and reinitialize
+      try {
+        await _notifications.cancelAll();
+      } catch (_) {
+        // Ignore if cancelAll also fails
+      }
+      // Try initializing again
+      await _notifications.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: _onNotificationTapped,
+      );
+    }
+
+    // Clean up any potentially corrupt pending notifications
+    try {
+      final pending = await _notifications.pendingNotificationRequests();
+      print('📋 Pending notifications at startup: ${pending.length}');
+    } catch (e) {
+      print('⚠️ Could not retrieve pending notifications, clearing all: $e');
+      await _notifications.cancelAll();
+    }
 
     print('✅ NotificationService initialisert!');
     _initialized = true;
@@ -103,7 +127,35 @@ class NotificationService {
       print('📋 Antall ventende varsler: ${pending.length}');
     } catch (e) {
       print('❌ Feil ved planlegging av varsel: $e');
-      rethrow;
+      
+      // If we get "Missing type parameter" error, it means there's corrupt notification data
+      // Clear all notifications and try again
+      if (e.toString().contains('Missing type parameter')) {
+        print('🔧 Detected corrupt notification data, clearing and retrying...');
+        try {
+          await _notifications.cancelAll();
+          
+          // Try scheduling again after cleanup
+          await _notifications.zonedSchedule(
+            notificationId,
+            'Ventetiden er over! ⏰',
+            'Nå kan du bestemme om du vil kjøpe "$productName"',
+            tz.TZDateTime.from(scheduledTime, tz.local),
+            notificationDetails,
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            payload: productId,
+          );
+          print('✅ Varsel planlagt etter cleanup!');
+        } catch (retryError) {
+          print('❌ Retry failed: $retryError');
+          // Don't rethrow - we already saved the product, just log the notification failure
+        }
+      } else {
+        // For other errors, just log but don't fail the whole operation
+        // The product was already saved successfully
+      }
     }
   }
 
