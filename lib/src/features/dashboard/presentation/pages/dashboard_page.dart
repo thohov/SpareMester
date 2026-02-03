@@ -17,6 +17,7 @@ class DashboardPage extends ConsumerWidget {
     final theme = Theme.of(context);
     final stats = ref.watch(statsProvider);
     final settings = ref.watch(settingsProvider);
+    final products = ref.watch(productsProvider);
 
     final moneySaved = stats['moneySaved'] as double;
     final hoursSaved = stats['hoursSaved'] as double;
@@ -24,6 +25,16 @@ class DashboardPage extends ConsumerWidget {
     final avoided = stats['avoided'] as int;
     final impulseBuys = stats['impulseBuys'] as int;
     final plannedPurchases = stats['plannedPurchases'] as int;
+    
+    // Count waiting products (in countdown)
+    final waitingProducts = products.where((p) => 
+      p.status == ProductStatus.waiting && !p.isTimerFinished
+    ).length;
+    
+    // Count completed products (timer done, awaiting decision)
+    final completedProducts = products.where((p) => 
+      p.status == ProductStatus.waiting && p.isTimerFinished
+    ).length;
 
     return Scaffold(
       appBar: AppBar(
@@ -304,7 +315,77 @@ class DashboardPage extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // Quick Stats
+            // Active Products Status (Alternativ 3)
+            if (waitingProducts > 0 || completedProducts > 0) ...[
+              Card(
+                color: theme.colorScheme.tertiaryContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.hourglass_bottom,
+                        size: 48,
+                        color: theme.colorScheme.onTertiaryContainer,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Aktive produkter',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onTertiaryContainer,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          if (waitingProducts > 0)
+                            Column(
+                              children: [
+                                Text(
+                                  waitingProducts.toString(),
+                                  style: theme.textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                                Text(
+                                  'På vent',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          if (completedProducts > 0)
+                            Column(
+                              children: [
+                                Text(
+                                  completedProducts.toString(),
+                                  style: theme.textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                                Text(
+                                  'Klare for beslutning',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onTertiaryContainer,
+                                  ),
+                                ),
+                              ],
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
+            // Quick Stats / Info Message (Alternativ 2)
             if (avoided + impulseBuys + plannedPurchases == 0) ...[
               Card(
                 color: theme.colorScheme.primaryContainer,
@@ -313,13 +394,17 @@ class DashboardPage extends ConsumerWidget {
                   child: Column(
                     children: [
                       Icon(
-                        Icons.info_outline,
+                        waitingProducts > 0 || completedProducts > 0
+                            ? Icons.pending_actions
+                            : Icons.info_outline,
                         size: 48,
                         color: theme.colorScheme.onPrimaryContainer,
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Legg til ditt første produkt for å begynne å spare!',
+                        waitingProducts > 0 || completedProducts > 0
+                            ? 'Dine produkter holder på med nedtelling! Ta en beslutning når timeren er ute. ⏰'
+                            : 'Legg til ditt første produkt for å begynne å spare!',
                         textAlign: TextAlign.center,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: theme.colorScheme.onPrimaryContainer,
