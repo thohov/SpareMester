@@ -17,232 +17,84 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
 
   Future<void> updateCurrency(String currency, String symbol) async {
     await _lock.synchronized(() async {
-      final current = state;
-      current.currency = currency;
-      current.currencySymbol = symbol;
-      await current.save();
-      // Trigger rebuild with a fresh copy - preserve all fields
-      final updated = DatabaseService.getSettings();
-      state = AppSettings(
-        currency: updated.currency,
-        currencySymbol: updated.currencySymbol,
-        hourlyWage: updated.hourlyWage,
-        languageCode: updated.languageCode,
-        hasCompletedOnboarding: updated.hasCompletedOnboarding,
-        smallAmountThreshold: updated.smallAmountThreshold,
-        mediumAmountThreshold: updated.mediumAmountThreshold,
-        smallAmountWaitHours: updated.smallAmountWaitHours,
-        mediumAmountWaitDays: updated.mediumAmountWaitDays,
-        largeAmountWaitDays: updated.largeAmountWaitDays,
-        useMinutesForSmallAmount: updated.useMinutesForSmallAmount,
-        currentStreak: updated.currentStreak,
-        longestStreak: updated.longestStreak,
-        lastDecisionDate: updated.lastDecisionDate,
-        monthlyBudget: updated.monthlyBudget,
+      final updated = state.copyWith(
+        currency: currency,
+        currencySymbol: symbol,
       );
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
     });
   }
 
   Future<void> updateHourlyWage(double wage) async {
     await _lock.synchronized(() async {
-      final current = state;
-      current.hourlyWage = wage;
-      await current.save();
-      // Trigger rebuild with a fresh copy - preserve all fields
-      final updated = DatabaseService.getSettings();
-      state = AppSettings(
-        currency: updated.currency,
-        currencySymbol: updated.currencySymbol,
-        hourlyWage: updated.hourlyWage,
-        languageCode: updated.languageCode,
-        hasCompletedOnboarding: updated.hasCompletedOnboarding,
-        smallAmountThreshold: updated.smallAmountThreshold,
-        mediumAmountThreshold: updated.mediumAmountThreshold,
-        smallAmountWaitHours: updated.smallAmountWaitHours,
-        mediumAmountWaitDays: updated.mediumAmountWaitDays,
-        largeAmountWaitDays: updated.largeAmountWaitDays,
-        useMinutesForSmallAmount: updated.useMinutesForSmallAmount,
-        currentStreak: updated.currentStreak,
-        longestStreak: updated.longestStreak,
-        lastDecisionDate: updated.lastDecisionDate,
-        monthlyBudget: updated.monthlyBudget,
-      );
+      final updated = state.copyWith(hourlyWage: wage);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
     });
   }
 
   Future<void> updateLanguage(String languageCode) async {
     await _lock.synchronized(() async {
-      final current = state;
-      current.languageCode = languageCode;
-      await current.save();
-      // Trigger rebuild with a fresh copy - preserve all fields
-      final updated = DatabaseService.getSettings();
-      state = AppSettings(
-        currency: updated.currency,
-        currencySymbol: updated.currencySymbol,
-        hourlyWage: updated.hourlyWage,
-        languageCode: updated.languageCode,
-        hasCompletedOnboarding: updated.hasCompletedOnboarding,
-        smallAmountThreshold: updated.smallAmountThreshold,
-        mediumAmountThreshold: updated.mediumAmountThreshold,
-        smallAmountWaitHours: updated.smallAmountWaitHours,
-        mediumAmountWaitDays: updated.mediumAmountWaitDays,
-        largeAmountWaitDays: updated.largeAmountWaitDays,
-        useMinutesForSmallAmount: updated.useMinutesForSmallAmount,
-        currentStreak: updated.currentStreak,
-        longestStreak: updated.longestStreak,
-        lastDecisionDate: updated.lastDecisionDate,
-        monthlyBudget: updated.monthlyBudget,
-      );
+      final updated = state.copyWith(languageCode: languageCode);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
     });
   }
 
   Future<void> updateSmallAmountWaitHours(int hours) async {
-    final current = state;
-    current.smallAmountWaitHours = hours;
-    await current.save();
-    // Trigger rebuild by creating a new instance
-    state = AppSettings(
-      currency: current.currency,
-      currencySymbol: current.currencySymbol,
-      hourlyWage: current.hourlyWage,
-      languageCode: current.languageCode,
-      hasCompletedOnboarding: current.hasCompletedOnboarding,
-      smallAmountThreshold: current.smallAmountThreshold,
-      mediumAmountThreshold: current.mediumAmountThreshold,
-      smallAmountWaitHours: hours,
-      mediumAmountWaitDays: current.mediumAmountWaitDays,
-      largeAmountWaitDays: current.largeAmountWaitDays,
-      useMinutesForSmallAmount: current.useMinutesForSmallAmount,
-    );
-    // Also save to database to ensure persistence
-    await DatabaseService.updateSettings(state);
+    await _lock.synchronized(() async {
+      final updated = state.copyWith(smallAmountWaitHours: hours);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
+    });
   }
 
   Future<void> updateMediumAmountWaitDays(int days) async {
-    final current = state;
-    // Trigger rebuild by creating a new instance
-    state = AppSettings(
-      currency: current.currency,
-      currencySymbol: current.currencySymbol,
-      hourlyWage: current.hourlyWage,
-      languageCode: current.languageCode,
-      hasCompletedOnboarding: current.hasCompletedOnboarding,
-      smallAmountThreshold: current.smallAmountThreshold,
-      mediumAmountThreshold: current.mediumAmountThreshold,
-      smallAmountWaitHours: current.smallAmountWaitHours,
-      mediumAmountWaitDays: days,
-      largeAmountWaitDays: current.largeAmountWaitDays,
-      useMinutesForSmallAmount: current.useMinutesForSmallAmount,
-    );
-    // Also save to database to ensure persistence
-    await DatabaseService.updateSettings(state);
+    await _lock.synchronized(() async {
+      final updated = state.copyWith(mediumAmountWaitDays: days);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
+    });
   }
 
   Future<void> updateLargeAmountWaitDays(int days) async {
-    final current = state;
-    // Trigger rebuild by creating a new instance
-    state = AppSettings(
-      currency: current.currency,
-      currencySymbol: current.currencySymbol,
-      hourlyWage: current.hourlyWage,
-      languageCode: current.languageCode,
-      hasCompletedOnboarding: current.hasCompletedOnboarding,
-      smallAmountThreshold: current.smallAmountThreshold,
-      mediumAmountThreshold: current.mediumAmountThreshold,
-      smallAmountWaitHours: current.smallAmountWaitHours,
-      mediumAmountWaitDays: current.mediumAmountWaitDays,
-      largeAmountWaitDays: days,
-      useMinutesForSmallAmount: current.useMinutesForSmallAmount,
-    );
-    // Also save to database to ensure persistence
-    await DatabaseService.updateSettings(state);
+    await _lock.synchronized(() async {
+      final updated = state.copyWith(largeAmountWaitDays: days);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
+    });
   }
 
   Future<void> updateSmallAmountThreshold(int threshold) async {
-    final current = state;
-    // Trigger rebuild by creating a new instance
-    state = AppSettings(
-      currency: current.currency,
-      currencySymbol: current.currencySymbol,
-      hourlyWage: current.hourlyWage,
-      languageCode: current.languageCode,
-      hasCompletedOnboarding: current.hasCompletedOnboarding,
-      smallAmountThreshold: threshold,
-      mediumAmountThreshold: current.mediumAmountThreshold,
-      smallAmountWaitHours: current.smallAmountWaitHours,
-      mediumAmountWaitDays: current.mediumAmountWaitDays,
-      largeAmountWaitDays: current.largeAmountWaitDays,
-      useMinutesForSmallAmount: current.useMinutesForSmallAmount,
-    );
-    // Also save to database to ensure persistence
-    await DatabaseService.updateSettings(state);
+    await _lock.synchronized(() async {
+      final updated = state.copyWith(smallAmountThreshold: threshold);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
+    });
   }
 
   Future<void> updateMediumAmountThreshold(int threshold) async {
-    final current = state;
-    // Trigger rebuild by creating a new instance
-    state = AppSettings(
-      currency: current.currency,
-      currencySymbol: current.currencySymbol,
-      hourlyWage: current.hourlyWage,
-      languageCode: current.languageCode,
-      hasCompletedOnboarding: current.hasCompletedOnboarding,
-      smallAmountThreshold: current.smallAmountThreshold,
-      mediumAmountThreshold: threshold,
-      smallAmountWaitHours: current.smallAmountWaitHours,
-      mediumAmountWaitDays: current.mediumAmountWaitDays,
-      largeAmountWaitDays: current.largeAmountWaitDays,
-      useMinutesForSmallAmount: current.useMinutesForSmallAmount,
-    );
-    // Also save to database to ensure persistence
-    await DatabaseService.updateSettings(state);
+    await _lock.synchronized(() async {
+      final updated = state.copyWith(mediumAmountThreshold: threshold);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
+    });
   }
 
   Future<void> toggleUseMinutesForSmallAmount(bool useMinutes) async {
-    final current = state;
-    // Trigger rebuild by creating a new instance
-    state = AppSettings(
-      currency: current.currency,
-      currencySymbol: current.currencySymbol,
-      hourlyWage: current.hourlyWage,
-      languageCode: current.languageCode,
-      hasCompletedOnboarding: current.hasCompletedOnboarding,
-      smallAmountThreshold: current.smallAmountThreshold,
-      mediumAmountThreshold: current.mediumAmountThreshold,
-      smallAmountWaitHours: current.smallAmountWaitHours,
-      mediumAmountWaitDays: current.mediumAmountWaitDays,
-      largeAmountWaitDays: current.largeAmountWaitDays,
-      useMinutesForSmallAmount: useMinutes,
-    );
-    // Also save to database to ensure persistence
-    await DatabaseService.updateSettings(state);
+    await _lock.synchronized(() async {
+      final updated = state.copyWith(useMinutesForSmallAmount: useMinutes);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
+    });
   }
 
   Future<void> updateMonthlyBudget(double? budget) async {
     await _lock.synchronized(() async {
-      final current = state;
-      current.monthlyBudget = budget;
-      await current.save();
-      // Trigger rebuild with a fresh copy - preserve all fields
-      final updated = DatabaseService.getSettings();
-      state = AppSettings(
-        currency: updated.currency,
-        currencySymbol: updated.currencySymbol,
-        hourlyWage: updated.hourlyWage,
-        languageCode: updated.languageCode,
-        hasCompletedOnboarding: updated.hasCompletedOnboarding,
-        smallAmountThreshold: updated.smallAmountThreshold,
-        mediumAmountThreshold: updated.mediumAmountThreshold,
-        smallAmountWaitHours: updated.smallAmountWaitHours,
-        mediumAmountWaitDays: updated.mediumAmountWaitDays,
-        largeAmountWaitDays: updated.largeAmountWaitDays,
-        useMinutesForSmallAmount: updated.useMinutesForSmallAmount,
-        currentStreak: updated.currentStreak,
-        longestStreak: updated.longestStreak,
-        lastDecisionDate: updated.lastDecisionDate,
-        monthlyBudget: updated.monthlyBudget,
-      );
+      final updated = state.copyWith(monthlyBudget: budget);
+      await DatabaseService.updateSettings(updated);
+      state = DatabaseService.getSettings();
     });
   }
 
