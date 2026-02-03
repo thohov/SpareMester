@@ -169,7 +169,8 @@ class AppSettings extends HiveObject {
       longestStreak = currentStreak;
     }
 
-    save();
+    // Note: Persistence is handled by caller (products_provider)
+    // Removed save() call to prevent HiveError on copyWith() objects
   }
 }
 

@@ -45,6 +45,8 @@ class AchievementService {
     final achievement = _box?.get(id);
     if (achievement != null && !achievement.isUnlocked) {
       achievement.unlock();
+      // Explicitly save to box since unlock() no longer calls save()
+      await _box!.put(id, achievement);
     }
   }
 

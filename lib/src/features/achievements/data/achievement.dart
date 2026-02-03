@@ -35,7 +35,8 @@ class Achievement extends HiveObject {
 
   void unlock() {
     unlockedAt = DateTime.now();
-    save();
+    // Note: Persistence is handled by AchievementService.unlockAchievement()
+    // Removed save() call to prevent HiveError on non-boxed objects
   }
 
   Achievement copyWith({

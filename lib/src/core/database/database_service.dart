@@ -82,8 +82,8 @@ class DatabaseService {
     await _settingsLock.synchronized(() async {
       final box = getSettingsBox();
       await box.put('settings', settings);
-      // Also call save() since AppSettings extends HiveObject
-      await settings.save();
+      // Note: box.put() both saves AND links object to box
+      // No need to call settings.save() - it would fail on copyWith() objects
     });
   }
 
@@ -112,7 +112,8 @@ class DatabaseService {
   // Update product
   static Future<void> updateProduct(Product product) async {
     await _productsLock.synchronized(() async {
-      await product.save();
+      final box = getProductsBox();
+      await box.put(product.id, product);
     });
   }
 
