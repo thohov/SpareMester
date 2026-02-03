@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product_category.dart';
 import 'package:pengespareapp/src/features/settings/data/app_settings.dart';
@@ -7,6 +8,10 @@ import 'package:pengespareapp/src/features/achievements/data/achievement.dart';
 class DatabaseService {
   static const String settingsBoxName = 'settings';
   static const String productsBoxName = 'products';
+
+  // Locks for thread-safe database operations
+  static final _productsLock = Lock();
+  static final _settingsLock = Lock();
 
   // Initialize Hive and register adapters
   static Future<void> init() async {
@@ -74,45 +79,49 @@ class DatabaseService {
 
   // Update settings
   static Future<void> updateSettings(AppSettings settings) async {
-    final box = getSettingsBox();
-    await box.put('settings', settings);
-    // Also call save() since AppSettings extends HiveObject
-    await settings.save();
+    await _settingsLock.synchronized(() async {
+      final box = getSettingsBox();
+      await box.put('settings', settings);
+      // Also call save() since AppSettings extends HiveObject
+      await settings.save();
+    });
   }
 
   // Get all active products (waiting or completed status)
   static List<Product> getActiveProducts() {
     final box = getProductsBox();
-    return box.values
-        .where((p) => p.status != ProductStatus.archived)
-        .toList()
+    return box.values.where((p) => p.status != ProductStatus.archived).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   // Get archived products
   static List<Product> getArchivedProducts() {
     final box = getProductsBox();
-    return box.values
-        .where((p) => p.status == ProductStatus.archived)
-        .toList()
+    return box.values.where((p) => p.status == ProductStatus.archived).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   // Add product
   static Future<void> addProduct(Product product) async {
-    final box = getProductsBox();
-    await box.put(product.id, product);
+    await _productsLock.synchronized(() async {
+      final box = getProductsBox();
+      await box.put(product.id, product);
+    });
   }
 
   // Update product
   static Future<void> updateProduct(Product product) async {
-    await product.save();
+    await _productsLock.synchronized(() async {
+      await product.save();
+    });
   }
 
   // Delete product
   static Future<void> deleteProduct(String id) async {
-    final box = getProductsBox();
-    await box.delete(id);
+    await _productsLock.synchronized(() async {
+      final box = getProductsBox();
+      await box.delete(id);
+    });
   }
 
   // Calculate statistics
@@ -137,14 +146,13 @@ class DatabaseService {
     }
 
     final totalDecisions = avoided + impulseBuys + plannedPurchases;
-    final impulseControlScore = totalDecisions > 0 
+    final impulseControlScore = totalDecisions > 0
         ? ((avoided + plannedPurchases) / totalDecisions * 100).toInt()
         : 100;
 
     final settings = getSettings();
-    final hoursSaved = settings.hourlyWage > 0 
-        ? moneySaved / settings.hourlyWage 
-        : 0.0;
+    final hoursSaved =
+        settings.hourlyWage > 0 ? moneySaved / settings.hourlyWage : 0.0;
 
     return {
       'moneySaved': moneySaved,

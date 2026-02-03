@@ -28,7 +28,9 @@ class ProductAdapter extends TypeAdapter<Product> {
       status: fields[8] as ProductStatus,
       decision: fields[9] as PurchaseDecision?,
       decisionDate: fields[10] as DateTime?,
-      category: fields[11] == null ? ProductCategory.other : fields[11] as ProductCategory,
+      category: fields[11] == null
+          ? ProductCategory.other
+          : fields[11] as ProductCategory,
       extendedCooldownDays: fields[12] as int?,
     );
   }

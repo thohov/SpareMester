@@ -17,7 +17,7 @@ class DashboardPage extends ConsumerWidget {
     final theme = Theme.of(context);
     final stats = ref.watch(statsProvider);
     final settings = ref.watch(settingsProvider);
-    
+
     final moneySaved = stats['moneySaved'] as double;
     final hoursSaved = stats['hoursSaved'] as double;
     final impulseControlScore = stats['impulseControlScore'] as int;
@@ -39,15 +39,17 @@ class DashboardPage extends ConsumerWidget {
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
-            ),            const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 16),
 
             // Budget Card (if budget is set)
-            if (settings.monthlyBudget != null) _BudgetCard(
-              settings: settings,
-              products: ref.watch(allProductsProvider),
-            ),
+            if (settings.monthlyBudget != null)
+              _BudgetCard(
+                settings: settings,
+                products: ref.watch(allProductsProvider),
+              ),
             if (settings.monthlyBudget != null) const SizedBox(height: 16),
-            
+
             // Streak Card
             Card(
               color: theme.colorScheme.tertiaryContainer,
@@ -58,9 +60,10 @@ class DashboardPage extends ConsumerWidget {
                     Icon(
                       Icons.local_fire_department,
                       size: 48,
-                      color: settings.currentStreak > 0 
-                        ? Colors.orange 
-                        : theme.colorScheme.onTertiaryContainer.withOpacity(0.5),
+                      color: settings.currentStreak > 0
+                          ? Colors.orange
+                          : theme.colorScheme.onTertiaryContainer
+                              .withOpacity(0.5),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -68,9 +71,9 @@ class DashboardPage extends ConsumerWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            settings.currentStreak > 0 
-                              ? '🔥 ${settings.currentStreak} dager på rad!'
-                              : 'Start din streak!',
+                            settings.currentStreak > 0
+                                ? '🔥 ${settings.currentStreak} dager på rad!'
+                                : 'Start din streak!',
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: theme.colorScheme.onTertiaryContainer,
@@ -79,8 +82,8 @@ class DashboardPage extends ConsumerWidget {
                           const SizedBox(height: 4),
                           Text(
                             settings.currentStreak > 0
-                              ? 'Fortsett å ta gode beslutninger! 💪'
-                              : 'Ta en beslutning for å starte',
+                                ? 'Fortsett å ta gode beslutninger! 💪'
+                                : 'Ta en beslutning for å starte',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onTertiaryContainer,
                             ),
@@ -89,7 +92,8 @@ class DashboardPage extends ConsumerWidget {
                             Text(
                               'Beste: ${settings.longestStreak} dager',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onTertiaryContainer.withOpacity(0.7),
+                                color: theme.colorScheme.onTertiaryContainer
+                                    .withOpacity(0.7),
                               ),
                             ),
                         ],
@@ -98,7 +102,8 @@ class DashboardPage extends ConsumerWidget {
                   ],
                 ),
               ),
-            ),            const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 16),
 
             // Achievements Card
             Card(
@@ -150,7 +155,7 @@ class DashboardPage extends ConsumerWidget {
                 ),
               ),
             ),
-                        const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Statistics Card
             Card(
@@ -202,7 +207,7 @@ class DashboardPage extends ConsumerWidget {
                 ),
               ),
             ),
-                        const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Stats Cards
             Row(
@@ -210,7 +215,8 @@ class DashboardPage extends ConsumerWidget {
                 Expanded(
                   child: _StatCard(
                     title: l10n.moneySaved,
-                    value: '${moneySaved.toStringAsFixed(0)} ${settings.currencySymbol}',
+                    value:
+                        '${moneySaved.toStringAsFixed(0)} ${settings.currencySymbol}',
                     icon: Icons.savings,
                     color: theme.colorScheme.primaryContainer,
                   ),
@@ -249,7 +255,8 @@ class DashboardPage extends ConsumerWidget {
                           child: CircularProgressIndicator(
                             value: impulseControlScore / 100,
                             strokeWidth: 12,
-                            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                            backgroundColor:
+                                theme.colorScheme.surfaceContainerHighest,
                           ),
                         ),
                         Column(
@@ -354,7 +361,7 @@ class _StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       color: color,
       child: Padding(
@@ -434,7 +441,7 @@ class _BudgetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final budget = settings.monthlyBudget ?? 0;
-    
+
     // Calculate current month's spending (impulse buys only)
     final now = DateTime.now();
     final thisMonthSpending = products
@@ -445,9 +452,10 @@ class _BudgetCard extends StatelessWidget {
             p.decisionDate!.month == now.month)
         .fold<double>(0, (sum, p) => sum + p.price);
 
-    final percentage = budget > 0 ? (thisMonthSpending / budget).clamp(0.0, 1.0) : 0.0;
+    final percentage =
+        budget > 0 ? (thisMonthSpending / budget).clamp(0.0, 1.0) : 0.0;
     final remaining = budget - thisMonthSpending;
-    
+
     // Color based on percentage
     Color progressColor;
     if (percentage >= 0.9) {

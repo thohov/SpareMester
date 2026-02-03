@@ -6,17 +6,17 @@ import 'package:pengespareapp/src/features/products/domain/models/product.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product_category.dart';
 import 'package:pengespareapp/src/features/achievements/services/achievement_service.dart';
 import 'package:pengespareapp/src/features/achievements/data/achievement.dart';
-import 'package:pengespareapp/src/features/settings/data/app_settings.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 // Products provider
-final productsProvider = StateNotifierProvider<ProductsNotifier, List<Product>>((ref) {
+final productsProvider =
+    StateNotifierProvider<ProductsNotifier, List<Product>>((ref) {
   return ProductsNotifier(ref);
 });
 
 // All products provider (including archived)
-final allProductsProvider = StateNotifierProvider<AllProductsNotifier, List<Product>>((ref) {
+final allProductsProvider =
+    StateNotifierProvider<AllProductsNotifier, List<Product>>((ref) {
   return AllProductsNotifier();
 });
 
@@ -36,7 +36,7 @@ class AllProductsNotifier extends StateNotifier<List<Product>> {
 
 class ProductsNotifier extends StateNotifier<List<Product>> {
   final Ref ref;
-  
+
   ProductsNotifier(this.ref) : super(DatabaseService.getActiveProducts());
 
   void refresh() {
@@ -71,7 +71,7 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
       );
 
       await DatabaseService.addProduct(product);
-      
+
       // Schedule notification for when timer ends
       try {
         await NotificationService().scheduleProductNotification(
@@ -83,7 +83,7 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
         // Log notification error but don't fail the whole operation
         print('⚠️ Failed to schedule notification: $e');
       }
-      
+
       refresh();
       return product;
     } catch (e, stackTrace) {
@@ -123,10 +123,10 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
     product.decision = PurchaseDecision.impulseBuy;
     product.decisionDate = DateTime.now();
     await DatabaseService.updateProduct(product);
-    
+
     // Update streak and check achievements
     final newAchievements = await _updateStreakAndAchievements();
-    
+
     refresh();
     return newAchievements;
   }
@@ -138,10 +138,10 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
     product.decision = PurchaseDecision.plannedPurchase;
     product.decisionDate = DateTime.now();
     await DatabaseService.updateProduct(product);
-    
+
     // Update streak and check achievements
     final newAchievements = await _updateStreakAndAchievements();
-    
+
     refresh();
     return newAchievements;
   }
@@ -153,10 +153,10 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
     product.decision = PurchaseDecision.avoided;
     product.decisionDate = DateTime.now();
     await DatabaseService.updateProduct(product);
-    
+
     // Update streak and check achievements
     final newAchievements = await _updateStreakAndAchievements();
-    
+
     refresh();
     return newAchievements;
   }
@@ -164,66 +164,71 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
   Future<void> extendCooldown(Product product, int days) async {
     // Set extended cooldown
     product.extendedCooldownDays = days;
-    
+
     // Reset the timer by creating a new end date from now
     final now = DateTime.now();
     product.createdAt = now;
     product.timerEndDate = now.add(Duration(days: days));
     product.status = ProductStatus.waiting;
-    
+
     // Clear any previous decision
     product.decision = null;
     product.decisionDate = null;
-    
+
     await DatabaseService.updateProduct(product);
-    
+
     // Schedule new notification
     await NotificationService().scheduleProductNotification(
       productId: product.id,
       productName: product.name,
       scheduledTime: product.timerEndDate,
     );
-    
+
     refresh();
   }
-  
+
   Future<List<Achievement>> _updateStreakAndAchievements() async {
     // Update streak in settings
     final settings = DatabaseService.getSettings();
     settings.updateStreak();
     await DatabaseService.updateSettings(settings);
-    
+
     // Check for newly unlocked achievements
     final achievementService = AchievementService();
     await achievementService.initialize();
-    
+
     // Get all products (active + archived)
     final allProducts = [
       ...DatabaseService.getActiveProducts(),
       ...DatabaseService.getArchivedProducts(),
     ];
-    
+
     final newAchievements = await achievementService.checkAchievements(
       allProducts: allProducts,
       currentStreak: settings.currentStreak,
     );
-    
+
     return newAchievements;
   }
 
   // Get products by status
   List<Product> getWaitingProducts() {
-    return state.where((p) => p.status == ProductStatus.waiting && !p.isTimerFinished).toList();
+    return state
+        .where((p) => p.status == ProductStatus.waiting && !p.isTimerFinished)
+        .toList();
   }
 
   List<Product> getCompletedProducts() {
-    return state.where((p) => p.status == ProductStatus.waiting && p.isTimerFinished).toList();
+    return state
+        .where((p) => p.status == ProductStatus.waiting && p.isTimerFinished)
+        .toList();
   }
 }
 
 // Statistics provider
 final statsProvider = Provider<Map<String, dynamic>>((ref) {
-  // Watch products to recalculate when they change
+  // Watch both providers to recalculate when any products change
   ref.watch(productsProvider);
+  ref.watch(allProductsProvider);
   return DatabaseService.calculateStats();
 });

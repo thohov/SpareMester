@@ -99,7 +99,8 @@ class _PrePurchaseDialogState extends State<PrePurchaseDialog> {
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Du må krysse av begge punktene før du kan kjøpe!'),
+                  content:
+                      Text('Du må krysse av begge punktene før du kan kjøpe!'),
                   duration: Duration(seconds: 2),
                   backgroundColor: Colors.orange,
                 ),

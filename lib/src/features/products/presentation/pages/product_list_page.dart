@@ -46,8 +46,12 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
           // Category filter dropdown
           PopupMenuButton<ProductCategory?>(
             icon: Icon(
-              _selectedCategory != null ? Icons.filter_alt : Icons.filter_alt_outlined,
-              color: _selectedCategory != null ? Theme.of(context).colorScheme.primary : null,
+              _selectedCategory != null
+                  ? Icons.filter_alt
+                  : Icons.filter_alt_outlined,
+              color: _selectedCategory != null
+                  ? Theme.of(context).colorScheme.primary
+                  : null,
             ),
             tooltip: 'Filtrer etter kategori',
             onSelected: (category) {
@@ -71,21 +75,21 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
               ),
               const PopupMenuDivider(),
               ...ProductCategory.values.map((category) => PopupMenuItem(
-                value: category,
-                child: Row(
-                  children: [
-                    Icon(
-                      _selectedCategory == category ? Icons.check : null,
-                      size: 20,
+                    value: category,
+                    child: Row(
+                      children: [
+                        Icon(
+                          _selectedCategory == category ? Icons.check : null,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${category.emoji} ${category.displayName}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${category.emoji} ${category.displayName}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-              )),
+                  )),
             ],
           ),
         ],
@@ -109,15 +113,18 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
                   Text(
                     l10n.tapPlusToAdd,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+                          color: Theme.of(context).colorScheme.outline,
+                        ),
                   ),
                 ],
               ),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: products.length + (completedProducts.isNotEmpty && waitingProducts.isNotEmpty ? 1 : 0),
+              itemCount: products.length +
+                  (completedProducts.isNotEmpty && waitingProducts.isNotEmpty
+                      ? 1
+                      : 0),
               itemBuilder: (context, index) {
                 // Show completed products first
                 if (index < completedProducts.length) {
@@ -126,9 +133,10 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
                     product: completedProducts[index],
                   );
                 }
-                
+
                 // Add divider between completed and waiting
-                if (completedProducts.isNotEmpty && waitingProducts.isNotEmpty && 
+                if (completedProducts.isNotEmpty &&
+                    waitingProducts.isNotEmpty &&
                     index == completedProducts.length) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -139,9 +147,12 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             'Venter',
-                            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.outline,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelLarge
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
                           ),
                         ),
                         const Expanded(child: Divider()),
@@ -149,10 +160,13 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
                     ),
                   );
                 }
-                
+
                 // Show waiting products
-                final waitingIndex = index - completedProducts.length - 
-                    (completedProducts.isNotEmpty && waitingProducts.isNotEmpty ? 1 : 0);
+                final waitingIndex = index -
+                    completedProducts.length -
+                    (completedProducts.isNotEmpty && waitingProducts.isNotEmpty
+                        ? 1
+                        : 0);
                 return ProductCard(
                   key: ValueKey(waitingProducts[waitingIndex].id),
                   product: waitingProducts[waitingIndex],

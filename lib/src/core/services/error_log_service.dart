@@ -97,7 +97,8 @@ class ErrorLogService {
 
     // Anonymize the error message - remove potential sensitive data
     final sanitizedMessage = _sanitizeMessage(errorMessage);
-    final sanitizedStack = stackTrace != null ? _sanitizeStackTrace(stackTrace) : null;
+    final sanitizedStack =
+        stackTrace != null ? _sanitizeStackTrace(stackTrace) : null;
 
     final entry = ErrorLogEntry(
       timestamp: DateTime.now().toIso8601String(),
@@ -123,7 +124,7 @@ class ErrorLogService {
 
   static List<ErrorLogEntry> getAllLogs() {
     if (_box == null) return [];
-    
+
     return _box!.values
         .map((json) => ErrorLogEntry.fromJson(Map<String, dynamic>.from(json)))
         .toList()
@@ -214,7 +215,8 @@ class ErrorLogService {
     // Keep only first 10 lines of stack trace to reduce size
     final lines = sanitized.split('\n');
     if (lines.length > 10) {
-      sanitized = lines.take(10).join('\n') + '\n... (${lines.length - 10} more lines)';
+      sanitized =
+          lines.take(10).join('\n') + '\n... (${lines.length - 10} more lines)';
     }
 
     return sanitized;

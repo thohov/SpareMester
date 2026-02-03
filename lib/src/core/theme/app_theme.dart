@@ -5,7 +5,7 @@ class AppTheme {
   static const Color primaryBlue = Color(0xFF003087); // Deep Norwegian blue
   static const Color lightBlue = Color(0xFF4A90E2);
   static const Color accentRed = Color(0xFFBA0C2F); // Norwegian flag red
-  
+
   // Light theme
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,

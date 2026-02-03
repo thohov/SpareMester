@@ -80,7 +80,8 @@ class _ExtendedCooldownDialogState extends State<ExtendedCooldownDialog> {
                   min: 1,
                   max: 30,
                   divisions: 29,
-                  label: '$_selectedDays ${_selectedDays == 1 ? 'dag' : 'dager'}',
+                  label:
+                      '$_selectedDays ${_selectedDays == 1 ? 'dag' : 'dager'}',
                   onChanged: (value) {
                     setState(() {
                       _selectedDays = value.toInt();

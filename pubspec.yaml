@@ -43,6 +43,9 @@ dependencies:
   uuid: ^4.3.3
   http: ^1.2.0
 
+  # Concurrency
+  synchronized: ^3.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

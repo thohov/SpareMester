@@ -24,8 +24,9 @@ class _AchievementCelebrationDialogState
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
-    
+    _confettiController =
+        ConfettiController(duration: const Duration(seconds: 3));
+
     // Start confetti immediately when dialog opens
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
@@ -136,7 +137,7 @@ class _AchievementCelebrationDialogState
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Title
                 Text(
                   '🎉 Prestasjon opplåst! 🎉',
@@ -147,7 +148,7 @@ class _AchievementCelebrationDialogState
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Achievement name
                 Text(
                   achievementType.titleKey,
@@ -157,7 +158,7 @@ class _AchievementCelebrationDialogState
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Description
                 Text(
                   achievementType.descriptionKey,
@@ -167,7 +168,7 @@ class _AchievementCelebrationDialogState
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Close button
                 FilledButton(
                   onPressed: () => Navigator.of(context).pop(),

@@ -79,7 +79,7 @@ class Product extends HiveObject {
   double get progress {
     final totalDuration = timerEndDate.difference(createdAt);
     final elapsed = DateTime.now().difference(createdAt);
-    
+
     if (totalDuration.inSeconds == 0) return 1.0;
     final progress = elapsed.inSeconds / totalDuration.inSeconds;
     return progress.clamp(0.0, 1.0);

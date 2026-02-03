@@ -61,9 +61,9 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
     try {
       print('🔍 Henter bilde fra: $url');
       final imageUrl = await UrlMetadataService.extractImageFromUrl(url);
-      
+
       if (!mounted) return;
-      
+
       if (imageUrl != null && imageUrl.isNotEmpty) {
         _imageUrlController.text = imageUrl;
         print('✅ Bilde funnet: $imageUrl');
@@ -104,7 +104,7 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
   String _getWaitingPeriodText(double price) {
     final settings = ref.read(settingsProvider);
     final l10n = AppLocalizations.of(context);
-    
+
     if (price < settings.smallAmountThreshold) {
       return l10n.hours(settings.smallAmountWaitHours);
     } else if (price < settings.mediumAmountThreshold) {
@@ -121,31 +121,34 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
 
     final name = _nameController.text.trim();
     final price = double.parse(_priceController.text.trim());
-    final url = _urlController.text.trim().isEmpty ? null : _urlController.text.trim();
-    final imageUrl = _imageUrlController.text.trim().isEmpty ? null : _imageUrlController.text.trim();
+    final url =
+        _urlController.text.trim().isEmpty ? null : _urlController.text.trim();
+    final imageUrl = _imageUrlController.text.trim().isEmpty
+        ? null
+        : _imageUrlController.text.trim();
     final desireScore = _desireScore.round();
 
     try {
       await ref.read(productsProvider.notifier).addProduct(
-        name: name,
-        price: price,
-        url: url,
-        imageUrl: imageUrl,
-        desireScore: desireScore,
-        category: _selectedCategory,
-      );
+            name: name,
+            price: price,
+            url: url,
+            imageUrl: imageUrl,
+            desireScore: desireScore,
+            category: _selectedCategory,
+          );
 
       if (mounted) {
         final l10n = AppLocalizations.of(context);
         final period = _getWaitingPeriodText(price);
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.productAdded(period)),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
-        
+
         Navigator.of(context).pop();
       }
     } catch (e) {
@@ -160,7 +163,7 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
           'category': _selectedCategory.toString(),
         },
       );
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -181,7 +184,7 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final settings = ref.watch(settingsProvider);
-    
+
     final price = double.tryParse(_priceController.text) ?? 0;
     final workHours = price > 0 ? price / settings.hourlyWage : 0;
 
@@ -288,7 +291,8 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
                       labelText: 'Bilde-URL',
                       hintText: 'Hentes automatisk fra produktside',
                       prefixIcon: Icon(Icons.image),
-                      helperText: 'Du kan også lime inn direktelenke hvis du vil',
+                      helperText:
+                          'Du kan også lime inn direktelenke hvis du vil',
                     ),
                     keyboardType: TextInputType.url,
                     onChanged: (_) => setState(() {}),
@@ -332,7 +336,8 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
                             color: theme.colorScheme.surfaceContainerHighest,
                             child: Center(
                               child: CircularProgressIndicator(
-                                value: loadingProgress.expectedTotalBytes != null
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
                                     ? loadingProgress.cumulativeBytesLoaded /
                                         loadingProgress.expectedTotalBytes!
                                     : null,
@@ -353,7 +358,8 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
                 value: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: 'Kategori',
-                  prefixIcon: Text(_selectedCategory.emoji, style: const TextStyle(fontSize: 24)),
+                  prefixIcon: Text(_selectedCategory.emoji,
+                      style: const TextStyle(fontSize: 24)),
                   prefixIconConstraints: const BoxConstraints(minWidth: 56),
                 ),
                 items: ProductCategory.values.map((category) {
@@ -361,7 +367,8 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
                     value: category,
                     child: Row(
                       children: [
-                        Text(category.emoji, style: const TextStyle(fontSize: 20)),
+                        Text(category.emoji,
+                            style: const TextStyle(fontSize: 20)),
                         const SizedBox(width: 12),
                         Text(category.displayName),
                       ],
@@ -444,7 +451,8 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                      onPressed:
+                          _isLoading ? null : () => Navigator.of(context).pop(),
                       child: Text(l10n.cancel),
                     ),
                   ),

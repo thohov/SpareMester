@@ -27,24 +27,26 @@ class _HomePageState extends ConsumerState<HomePage> {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      appBar: _currentIndex == 1 ? null : AppBar(
-        title: Text(
-          _currentIndex == 0 ? l10n.dashboard : l10n.settings,
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.archive_outlined),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const ArchivePage(),
+      appBar: _currentIndex == 1
+          ? null
+          : AppBar(
+              title: Text(
+                _currentIndex == 0 ? l10n.dashboard : l10n.settings,
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.archive_outlined),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const ArchivePage(),
+                      ),
+                    );
+                  },
+                  tooltip: l10n.archive,
                 ),
-              );
-            },
-            tooltip: l10n.archive,
-          ),
-        ],
-      ),
+              ],
+            ),
       body: _pages[_currentIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,

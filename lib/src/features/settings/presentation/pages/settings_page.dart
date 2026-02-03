@@ -61,12 +61,13 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.access_time),
             title: Text(l10n.hourlyWage),
-            subtitle: Text('${settings.hourlyWage.toStringAsFixed(0)} ${settings.currencySymbol}'),
+            subtitle: Text(
+                '${settings.hourlyWage.toStringAsFixed(0)} ${settings.currencySymbol}'),
             onTap: () {
               final controller = TextEditingController(
                 text: settings.hourlyWage.toStringAsFixed(0),
               );
-              
+
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -81,22 +82,28 @@ class SettingsPage extends ConsumerWidget {
                   ),
                   actions: [
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        controller.dispose();
+                        Navigator.pop(context);
+                      },
                       child: Text(l10n.cancel),
                     ),
                     FilledButton(
                       onPressed: () {
                         final wage = double.tryParse(controller.text);
                         if (wage != null && wage > 0) {
-                          ref.read(settingsProvider.notifier).updateHourlyWage(wage);
+                          ref
+                              .read(settingsProvider.notifier)
+                              .updateHourlyWage(wage);
                         }
+                        controller.dispose();
                         Navigator.pop(context);
                       },
                       child: Text(l10n.save),
                     ),
                   ],
                 ),
-              );
+              ).then((_) => controller.dispose());
             },
           ),
 
@@ -106,7 +113,8 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(l10n.language),
-            subtitle: Text(settings.languageCode == 'nb' ? l10n.norwegian : l10n.english),
+            subtitle: Text(
+                settings.languageCode == 'nb' ? l10n.norwegian : l10n.english),
             onTap: () {
               showDialog(
                 context: context,
@@ -120,7 +128,9 @@ class SettingsPage extends ConsumerWidget {
                         value: 'nb',
                         groupValue: settings.languageCode,
                         onChanged: (value) {
-                          ref.read(settingsProvider.notifier).updateLanguage('nb');
+                          ref
+                              .read(settingsProvider.notifier)
+                              .updateLanguage('nb');
                           Navigator.pop(context);
                         },
                       ),
@@ -129,7 +139,9 @@ class SettingsPage extends ConsumerWidget {
                         value: 'en',
                         groupValue: settings.languageCode,
                         onChanged: (value) {
-                          ref.read(settingsProvider.notifier).updateLanguage('en');
+                          ref
+                              .read(settingsProvider.notifier)
+                              .updateLanguage('en');
                           Navigator.pop(context);
                         },
                       ),
@@ -155,7 +167,7 @@ class SettingsPage extends ConsumerWidget {
               final controller = TextEditingController(
                 text: settings.monthlyBudget?.toStringAsFixed(0) ?? '',
               );
-              
+
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -182,33 +194,42 @@ class SettingsPage extends ConsumerWidget {
                   actions: [
                     TextButton(
                       onPressed: () async {
-                        await ref.read(settingsProvider.notifier).updateMonthlyBudget(null);
+                        await ref
+                            .read(settingsProvider.notifier)
+                            .updateMonthlyBudget(null);
+                        controller.dispose();
                         Navigator.pop(context);
                       },
                       child: const Text('Fjern budsjett'),
                     ),
                     TextButton(
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        controller.dispose();
+                        Navigator.pop(context);
+                      },
                       child: Text(l10n.cancel),
                     ),
                     FilledButton(
                       onPressed: () async {
                         final budget = double.tryParse(controller.text);
                         if (budget != null && budget > 0) {
-                          await ref.read(settingsProvider.notifier).updateMonthlyBudget(budget);
+                          await ref
+                              .read(settingsProvider.notifier)
+                              .updateMonthlyBudget(budget);
                         }
+                        controller.dispose();
                         Navigator.pop(context);
                       },
                       child: Text(l10n.save),
                     ),
                   ],
                 ),
-              );
+              ).then((_) => controller.dispose());
             },
           ),
 
           const SizedBox(height: 24),
-          
+
           // Notifications Section Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -227,7 +248,8 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.notifications_active),
             title: const Text('Test varsel'),
-            subtitle: const Text('Send et test-varsel for å sjekke at alt fungerer'),
+            subtitle:
+                const Text('Send et test-varsel for å sjekke at alt fungerer'),
             trailing: FilledButton.icon(
               onPressed: () async {
                 await NotificationService().showTestNotification();
@@ -246,7 +268,7 @@ class SettingsPage extends ConsumerWidget {
           ),
 
           const SizedBox(height: 24),
-          
+
           // Waiting Periods Section Header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -268,7 +290,9 @@ class SettingsPage extends ConsumerWidget {
             subtitle: const Text('Aktiver for å teste varsler raskere'),
             value: settings.useMinutesForSmallAmount,
             onChanged: (value) {
-              ref.read(settingsProvider.notifier).toggleUseMinutesForSmallAmount(value);
+              ref
+                  .read(settingsProvider.notifier)
+                  .toggleUseMinutesForSmallAmount(value);
             },
           ),
 
@@ -277,8 +301,10 @@ class SettingsPage extends ConsumerWidget {
           // Small Amount Wait
           ListTile(
             leading: const Icon(Icons.timer_outlined),
-            title: Text('Små beløp (< ${settings.smallAmountThreshold} ${settings.currencySymbol})'),
-            subtitle: Text('Ventetid: ${settings.smallAmountWaitHours} ${settings.useMinutesForSmallAmount ? "minutter" : "timer"}'),
+            title: Text(
+                'Små beløp (< ${settings.smallAmountThreshold} ${settings.currencySymbol})'),
+            subtitle: Text(
+                'Ventetid: ${settings.smallAmountWaitHours} ${settings.useMinutesForSmallAmount ? "minutter" : "timer"}'),
             onTap: () async {
               await _showWaitTimeDialog(
                 context,
@@ -286,7 +312,9 @@ class SettingsPage extends ConsumerWidget {
                 'Små beløp',
                 settings.smallAmountWaitHours,
                 settings.useMinutesForSmallAmount ? 'minutter' : 'timer',
-                (hours) async => await ref.read(settingsProvider.notifier).updateSmallAmountWaitHours(hours),
+                (hours) async => await ref
+                    .read(settingsProvider.notifier)
+                    .updateSmallAmountWaitHours(hours),
               );
             },
           ),
@@ -296,7 +324,8 @@ class SettingsPage extends ConsumerWidget {
           // Medium Amount Wait
           ListTile(
             leading: const Icon(Icons.timer),
-            title: Text('Mellomstore beløp (${settings.smallAmountThreshold} - ${settings.mediumAmountThreshold} ${settings.currencySymbol})'),
+            title: Text(
+                'Mellomstore beløp (${settings.smallAmountThreshold} - ${settings.mediumAmountThreshold} ${settings.currencySymbol})'),
             subtitle: Text('Ventetid: ${settings.mediumAmountWaitDays} dager'),
             onTap: () async {
               await _showWaitTimeDialog(
@@ -305,7 +334,9 @@ class SettingsPage extends ConsumerWidget {
                 'Mellomstore beløp',
                 settings.mediumAmountWaitDays,
                 'dager',
-                (days) async => await ref.read(settingsProvider.notifier).updateMediumAmountWaitDays(days),
+                (days) async => await ref
+                    .read(settingsProvider.notifier)
+                    .updateMediumAmountWaitDays(days),
               );
             },
           ),
@@ -315,7 +346,8 @@ class SettingsPage extends ConsumerWidget {
           // Large Amount Wait
           ListTile(
             leading: const Icon(Icons.timer_10),
-            title: Text('Store beløp (> ${settings.mediumAmountThreshold} ${settings.currencySymbol})'),
+            title: Text(
+                'Store beløp (> ${settings.mediumAmountThreshold} ${settings.currencySymbol})'),
             subtitle: Text('Ventetid: ${settings.largeAmountWaitDays} dager'),
             onTap: () async {
               await _showWaitTimeDialog(
@@ -324,7 +356,9 @@ class SettingsPage extends ConsumerWidget {
                 'Store beløp',
                 settings.largeAmountWaitDays,
                 'dager',
-                (days) async => await ref.read(settingsProvider.notifier).updateLargeAmountWaitDays(days),
+                (days) async => await ref
+                    .read(settingsProvider.notifier)
+                    .updateLargeAmountWaitDays(days),
               );
             },
           ),
@@ -335,7 +369,8 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.monetization_on_outlined),
             title: const Text('Grense for små beløp'),
-            subtitle: Text('${settings.smallAmountThreshold} ${settings.currencySymbol}'),
+            subtitle: Text(
+                '${settings.smallAmountThreshold} ${settings.currencySymbol}'),
             onTap: () async {
               await _showThresholdDialog(
                 context,
@@ -343,7 +378,9 @@ class SettingsPage extends ConsumerWidget {
                 'Grense for små beløp',
                 settings.smallAmountThreshold,
                 settings.currencySymbol,
-                (value) async => await ref.read(settingsProvider.notifier).updateSmallAmountThreshold(value),
+                (value) async => await ref
+                    .read(settingsProvider.notifier)
+                    .updateSmallAmountThreshold(value),
               );
             },
           ),
@@ -354,7 +391,8 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.monetization_on),
             title: const Text('Grense for mellomstore beløp'),
-            subtitle: Text('${settings.mediumAmountThreshold} ${settings.currencySymbol}'),
+            subtitle: Text(
+                '${settings.mediumAmountThreshold} ${settings.currencySymbol}'),
             onTap: () async {
               await _showThresholdDialog(
                 context,
@@ -362,7 +400,9 @@ class SettingsPage extends ConsumerWidget {
                 'Grense for mellomstore beløp',
                 settings.mediumAmountThreshold,
                 settings.currencySymbol,
-                (value) async => await ref.read(settingsProvider.notifier).updateMediumAmountThreshold(value),
+                (value) async => await ref
+                    .read(settingsProvider.notifier)
+                    .updateMediumAmountThreshold(value),
               );
             },
           ),
@@ -460,7 +500,8 @@ class SettingsPage extends ConsumerWidget {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Kunne ikke åpne lenken. Ingen nettleser funnet.'),
+                        content: Text(
+                            'Kunne ikke åpne lenken. Ingen nettleser funnet.'),
                       ),
                     );
                   }
@@ -481,9 +522,7 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: Icon(
               Icons.bug_report,
-              color: ErrorLogService.getLogCount() > 0
-                  ? Colors.orange
-                  : null,
+              color: ErrorLogService.getLogCount() > 0 ? Colors.orange : null,
             ),
             title: const Text('Feillogg'),
             subtitle: Text(
@@ -538,7 +577,10 @@ class SettingsPage extends ConsumerWidget {
                 'laget for å ikke bruke penger på unødvendig dritt <3',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).colorScheme.onBackground.withOpacity(0.6),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onBackground
+                      .withOpacity(0.6),
                   fontStyle: FontStyle.italic,
                 ),
                 textAlign: TextAlign.center,
@@ -598,7 +640,10 @@ class SettingsPage extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              controller.dispose();
+              Navigator.pop(context);
+            },
             child: Text(l10n.cancel),
           ),
           FilledButton(
@@ -607,6 +652,7 @@ class SettingsPage extends ConsumerWidget {
               if (value != null && value > 0) {
                 await onUpdate(value);
               }
+              controller.dispose();
               if (context.mounted) {
                 Navigator.pop(context);
               }
@@ -615,7 +661,7 @@ class SettingsPage extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   Future<void> _showThresholdDialog(
@@ -643,7 +689,10 @@ class SettingsPage extends ConsumerWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              controller.dispose();
+              Navigator.pop(context);
+            },
             child: Text(l10n.cancel),
           ),
           FilledButton(
@@ -652,6 +701,7 @@ class SettingsPage extends ConsumerWidget {
               if (value != null && value > 0) {
                 await onUpdate(value);
               }
+              controller.dispose();
               if (context.mounted) {
                 Navigator.pop(context);
               }
@@ -660,12 +710,12 @@ class SettingsPage extends ConsumerWidget {
           ),
         ],
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   void _showErrorLogDialog(BuildContext context) {
     final logs = ErrorLogService.getAllLogs();
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -746,10 +796,12 @@ class SettingsPage extends ConsumerWidget {
                           final log = logs[index];
                           return ListTile(
                             dense: true,
-                            leading: const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                            leading: const Icon(Icons.error_outline,
+                                color: Colors.red, size: 20),
                             title: Text(
                               log.errorType,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,7 +815,9 @@ class SettingsPage extends ConsumerWidget {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  DateTime.parse(log.timestamp).toString().substring(0, 19),
+                                  DateTime.parse(log.timestamp)
+                                      .toString()
+                                      .substring(0, 19),
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.grey.shade600,

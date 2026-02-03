@@ -1,7 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pengespareapp/l10n/app_localizations.dart';
 import 'package:pengespareapp/src/core/providers/products_provider.dart';
 import 'package:pengespareapp/src/core/providers/settings_provider.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product.dart';
@@ -58,7 +57,8 @@ class StatisticsPage extends ConsumerWidget {
         title: const Text('Statistikk'),
       ),
       body: ListView(
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
+        padding:
+            const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
         children: [
           // Savings Over Time Chart
           _SavingsOverTimeChart(
@@ -239,7 +239,8 @@ class _CategoryDistributionChart extends StatelessWidget {
     // Count products by category
     final categoryCount = <ProductCategory, int>{};
     for (var product in products) {
-      categoryCount[product.category] = (categoryCount[product.category] ?? 0) + 1;
+      categoryCount[product.category] =
+          (categoryCount[product.category] ?? 0) + 1;
     }
 
     // Filter out categories with 0 products
@@ -368,9 +369,13 @@ class _DecisionTypeChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final avoided = products.where((p) => p.decision == PurchaseDecision.avoided).length;
-    final planned = products.where((p) => p.decision == PurchaseDecision.plannedPurchase).length;
-    final impulse = products.where((p) => p.decision == PurchaseDecision.impulseBuy).length;
+    final avoided =
+        products.where((p) => p.decision == PurchaseDecision.avoided).length;
+    final planned = products
+        .where((p) => p.decision == PurchaseDecision.plannedPurchase)
+        .length;
+    final impulse =
+        products.where((p) => p.decision == PurchaseDecision.impulseBuy).length;
 
     final sections = [
       if (avoided > 0)
@@ -577,18 +582,33 @@ class _MonthlySpendingChart extends StatelessWidget {
                       sideTitles: SideTitles(
                         showTitles: true,
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() >= monthKeys.length || value.toInt() < 0) {
+                          if (value.toInt() >= monthKeys.length ||
+                              value.toInt() < 0) {
                             return const Text('');
                           }
 
                           final monthKey = monthKeys[value.toInt()];
                           final monthNumber = monthKey % 12;
-                          final monthIndex = monthNumber == 0 ? 11 : monthNumber - 1;
-                          final monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 
-                                             'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
+                          final monthIndex =
+                              monthNumber == 0 ? 11 : monthNumber - 1;
+                          final monthNames = [
+                            'Jan',
+                            'Feb',
+                            'Mar',
+                            'Apr',
+                            'Mai',
+                            'Jun',
+                            'Jul',
+                            'Aug',
+                            'Sep',
+                            'Okt',
+                            'Nov',
+                            'Des'
+                          ];
 
                           // Sjekk at indeksen er gyldig
-                          if (monthIndex < 0 || monthIndex >= monthNames.length) {
+                          if (monthIndex < 0 ||
+                              monthIndex >= monthNames.length) {
                             return const Text('');
                           }
 

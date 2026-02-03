@@ -3,7 +3,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../data/achievement.dart';
 import '../data/achievement_type.dart';
 import '../../products/domain/models/product.dart';
-import 'package:pengespareapp/src/core/database/database_service.dart';
 
 class AchievementService {
   static const String _boxName = 'achievements';
@@ -18,7 +17,7 @@ class AchievementService {
       await Hive.deleteBoxFromDisk(_boxName);
       _box = await Hive.openBox<Achievement>(_boxName);
     }
-    
+
     // Initialize all achievements if not already done
     for (final type in AchievementType.values) {
       if (!_box!.containsKey(type.id)) {
@@ -55,32 +54,40 @@ class AchievementService {
     required int currentStreak,
   }) async {
     final newlyUnlocked = <Achievement>[];
-    
+
     // Count avoided products
     final avoidedCount = allProducts
-        .where((p) => p.status == ProductStatus.archived && p.decision == PurchaseDecision.avoided)
+        .where((p) =>
+            p.status == ProductStatus.archived &&
+            p.decision == PurchaseDecision.avoided)
         .length;
-    
+
     // Count total archived with any decision
     final totalDecisions = allProducts
         .where((p) => p.status == ProductStatus.archived && p.decision != null)
         .length;
-    
+
     // Count impulse buys
     final impulseBuyCount = allProducts
-        .where((p) => p.status == ProductStatus.archived && p.decision == PurchaseDecision.impulseBuy)
+        .where((p) =>
+            p.status == ProductStatus.archived &&
+            p.decision == PurchaseDecision.impulseBuy)
         .length;
-    
+
     // Count planned purchases
     final plannedCount = allProducts
-        .where((p) => p.status == ProductStatus.archived && p.decision == PurchaseDecision.plannedPurchase)
+        .where((p) =>
+            p.status == ProductStatus.archived &&
+            p.decision == PurchaseDecision.plannedPurchase)
         .length;
-    
+
     // Calculate total saved (avoided products)
     final totalSaved = allProducts
-        .where((p) => p.status == ProductStatus.archived && p.decision == PurchaseDecision.avoided)
+        .where((p) =>
+            p.status == ProductStatus.archived &&
+            p.decision == PurchaseDecision.avoided)
         .fold<double>(0, (sum, p) => sum + p.price);
-    
+
     // Check avoided achievements
     final avoidAchievements = [
       (AchievementType.firstAvoid, 1),
@@ -90,7 +97,7 @@ class AchievementService {
       (AchievementType.fiftyAvoided, 50),
       (AchievementType.hundredAvoided, 100),
     ];
-    
+
     for (final (type, count) in avoidAchievements) {
       if (avoidedCount >= count) {
         final achievement = getAchievement(type.id);
@@ -100,7 +107,7 @@ class AchievementService {
         }
       }
     }
-    
+
     // Check streak achievements
     final streakAchievements = [
       (AchievementType.threeDayStreak, 3),
@@ -110,7 +117,7 @@ class AchievementService {
       (AchievementType.fiftyDayStreak, 50),
       (AchievementType.hundredDayStreak, 100),
     ];
-    
+
     for (final (type, days) in streakAchievements) {
       if (currentStreak >= days) {
         final achievement = getAchievement(type.id);
@@ -120,7 +127,7 @@ class AchievementService {
         }
       }
     }
-    
+
     // Check savings achievements
     final savingsAchievements = [
       (AchievementType.fiveHundredSaved, 500.0),
@@ -130,7 +137,7 @@ class AchievementService {
       (AchievementType.twentyFiveThousandSaved, 25000.0),
       (AchievementType.fiftyThousandSaved, 50000.0),
     ];
-    
+
     for (final (type, amount) in savingsAchievements) {
       if (totalSaved >= amount) {
         final achievement = getAchievement(type.id);
@@ -140,7 +147,7 @@ class AchievementService {
         }
       }
     }
-    
+
     // Check impulse control achievements
     if (totalDecisions >= 7 && impulseBuyCount == 0) {
       final achievement = getAchievement(AchievementType.perfectWeek.id);
@@ -149,7 +156,7 @@ class AchievementService {
         newlyUnlocked.add(achievement);
       }
     }
-    
+
     if (totalDecisions >= 20 && impulseBuyCount == 0) {
       final achievement = getAchievement(AchievementType.noImpulse.id);
       if (achievement != null && !achievement.isUnlocked) {
@@ -157,7 +164,7 @@ class AchievementService {
         newlyUnlocked.add(achievement);
       }
     }
-    
+
     // Total decisions
     if (totalDecisions >= 50) {
       final achievement = getAchievement(AchievementType.fiftyDecisions.id);
@@ -166,7 +173,7 @@ class AchievementService {
         newlyUnlocked.add(achievement);
       }
     }
-    
+
     // Planned purchases
     if (plannedCount >= 1) {
       final achievement = getAchievement(AchievementType.firstPlanned.id);
@@ -175,7 +182,7 @@ class AchievementService {
         newlyUnlocked.add(achievement);
       }
     }
-    
+
     if (plannedCount >= 10) {
       final achievement = getAchievement(AchievementType.tenPlanned.id);
       if (achievement != null && !achievement.isUnlocked) {
@@ -183,15 +190,15 @@ class AchievementService {
         newlyUnlocked.add(achievement);
       }
     }
-    
+
     // Expensive avoided (over 5000)
     final expensiveAvoided = allProducts
-        .where((p) => 
-            p.status == ProductStatus.archived && 
+        .where((p) =>
+            p.status == ProductStatus.archived &&
             p.decision == PurchaseDecision.avoided &&
             p.price >= 5000)
         .isNotEmpty;
-    
+
     if (expensiveAvoided) {
       final achievement = getAchievement(AchievementType.expensiveAvoided.id);
       if (achievement != null && !achievement.isUnlocked) {
@@ -199,7 +206,7 @@ class AchievementService {
         newlyUnlocked.add(achievement);
       }
     }
-    
+
     // Check categories used
     final categoriesUsed = allProducts.map((p) => p.category).toSet().length;
     if (categoriesUsed >= 5) {
@@ -209,19 +216,19 @@ class AchievementService {
         newlyUnlocked.add(achievement);
       }
     }
-    
+
     // Check time-based achievements (last decision)
     final lastDecision = allProducts
-        .where((p) => p.decisionDate != null)
-        .isNotEmpty
+            .where((p) => p.decisionDate != null)
+            .isNotEmpty
         ? allProducts
             .where((p) => p.decisionDate != null)
             .reduce((a, b) => a.decisionDate!.isAfter(b.decisionDate!) ? a : b)
         : null;
-    
+
     if (lastDecision?.decisionDate != null) {
       final hour = lastDecision!.decisionDate!.hour;
-      
+
       // Early bird (before 8 AM)
       if (hour < 8) {
         final achievement = getAchievement(AchievementType.earlyBird.id);
@@ -230,7 +237,7 @@ class AchievementService {
           newlyUnlocked.add(achievement);
         }
       }
-      
+
       // Night owl (after 10 PM)
       if (hour >= 22) {
         final achievement = getAchievement(AchievementType.nightOwl.id);
@@ -240,7 +247,7 @@ class AchievementService {
         }
       }
     }
-    
+
     return newlyUnlocked;
   }
 }

@@ -15,24 +15,24 @@ import 'package:pengespareapp/src/features/home/home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize timezone database
   tz.initializeTimeZones();
   // Set local timezone to Oslo/Europe (Norway)
   tz.setLocalLocation(tz.getLocation('Europe/Oslo'));
-  
+
   // Initialize Hive database FIRST (required by ErrorLogService)
   await DatabaseService.init();
-  
+
   // Initialize error logging after Hive is ready
   await ErrorLogService.initialize();
-  
+
   // Initialize achievement service
   await AchievementService().initialize();
-  
+
   // Initialize notifications
   await NotificationService().initialize();
-  
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -50,7 +50,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'SpareMester',
       debugShowCheckedModeBanner: false,
-      
+
       // Localization
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -63,15 +63,15 @@ class MyApp extends ConsumerWidget {
         Locale('nb'), // Norwegian Bokmål
       ],
       locale: Locale(settings.languageCode),
-      
+
       // Theme
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      
+
       // Initial route based on onboarding status
       initialRoute: settings.hasCompletedOnboarding ? '/home' : '/onboarding',
-      
+
       routes: {
         '/onboarding': (context) => const OnboardingPage(),
         '/home': (context) => const HomePage(),

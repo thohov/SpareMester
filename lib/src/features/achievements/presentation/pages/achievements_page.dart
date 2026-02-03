@@ -106,7 +106,8 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 100),
+              padding: const EdgeInsets.only(
+                  left: 16, right: 16, top: 16, bottom: 100),
               itemCount: _achievements.length,
               itemBuilder: (context, index) {
                 final achievement = _achievements[index];
@@ -120,7 +121,8 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                   elevation: isUnlocked ? 2 : 0.5,
                   color: isUnlocked
                       ? null
-                      : theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                      : theme.colorScheme.surfaceContainerHighest
+                          .withOpacity(0.3),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -140,7 +142,8 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                         size: 32,
                         color: isUnlocked
                             ? theme.colorScheme.primary
-                            : theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+                            : theme.colorScheme.onSurfaceVariant
+                                .withOpacity(0.4),
                       ),
                     ),
                     title: Text(
@@ -149,7 +152,8 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                         color: isUnlocked
                             ? null
                             : theme.colorScheme.onSurface.withOpacity(0.5),
-                        fontWeight: isUnlocked ? FontWeight.bold : FontWeight.normal,
+                        fontWeight:
+                            isUnlocked ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                     subtitle: Column(
@@ -190,13 +194,15 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                               Icon(
                                 Icons.lock,
                                 size: 16,
-                                color: theme.colorScheme.onSurface.withOpacity(0.4),
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.4),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 'Ikke låst opp ennå',
                                 style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.4),
                                 ),
                               ),
                             ],

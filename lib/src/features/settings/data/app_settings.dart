@@ -109,24 +109,27 @@ class AppSettings extends HiveObject {
     int? currentStreak,
     int? longestStreak,
     DateTime? lastDecisionDate,
-    double? Function()? monthlyBudget,
+    double? monthlyBudget,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
       currencySymbol: currencySymbol ?? this.currencySymbol,
       hourlyWage: hourlyWage ?? this.hourlyWage,
       languageCode: languageCode ?? this.languageCode,
-      hasCompletedOnboarding: hasCompletedOnboarding ?? this.hasCompletedOnboarding,
+      hasCompletedOnboarding:
+          hasCompletedOnboarding ?? this.hasCompletedOnboarding,
       smallAmountThreshold: smallAmountThreshold ?? this.smallAmountThreshold,
-      mediumAmountThreshold: mediumAmountThreshold ?? this.mediumAmountThreshold,
+      mediumAmountThreshold:
+          mediumAmountThreshold ?? this.mediumAmountThreshold,
       smallAmountWaitHours: smallAmountWaitHours ?? this.smallAmountWaitHours,
       mediumAmountWaitDays: mediumAmountWaitDays ?? this.mediumAmountWaitDays,
       largeAmountWaitDays: largeAmountWaitDays ?? this.largeAmountWaitDays,
-      useMinutesForSmallAmount: useMinutesForSmallAmount ?? this.useMinutesForSmallAmount,
+      useMinutesForSmallAmount:
+          useMinutesForSmallAmount ?? this.useMinutesForSmallAmount,
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
       lastDecisionDate: lastDecisionDate ?? this.lastDecisionDate,
-      monthlyBudget: monthlyBudget != null ? monthlyBudget() : this.monthlyBudget,
+      monthlyBudget: monthlyBudget ?? this.monthlyBudget,
     );
   }
 
@@ -134,7 +137,7 @@ class AppSettings extends HiveObject {
   void updateStreak() {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    
+
     if (lastDecisionDate == null) {
       // First decision ever
       currentStreak = 1;
@@ -146,7 +149,7 @@ class AppSettings extends HiveObject {
         lastDecisionDate!.day,
       );
       final daysDiff = today.difference(lastDate).inDays;
-      
+
       if (daysDiff == 0) {
         // Same day, don't change streak
         return;
@@ -157,15 +160,15 @@ class AppSettings extends HiveObject {
         // Break in streak, reset
         currentStreak = 1;
       }
-      
+
       lastDecisionDate = today;
     }
-    
+
     // Update longest streak if current is better
     if (currentStreak > longestStreak) {
       longestStreak = currentStreak;
     }
-    
+
     save();
   }
 }

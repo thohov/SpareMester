@@ -1,74 +1,100 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:pengespareapp/src/core/database/database_service.dart';
 import 'package:pengespareapp/src/features/settings/data/app_settings.dart';
 
 // Settings provider
-final settingsProvider = StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
+final settingsProvider =
+    StateNotifierProvider<SettingsNotifier, AppSettings>((ref) {
   return SettingsNotifier();
 });
 
 class SettingsNotifier extends StateNotifier<AppSettings> {
   SettingsNotifier() : super(DatabaseService.getSettings());
 
+  // Lock for thread-safe settings updates
+  final _lock = Lock();
+
   Future<void> updateCurrency(String currency, String symbol) async {
-    final current = state;
-    current.currency = currency;
-    current.currencySymbol = symbol;
-    await current.save();
-    // Trigger rebuild with a fresh copy
-    final updated = DatabaseService.getSettings();
-    state = AppSettings(
-      currency: updated.currency,
-      currencySymbol: updated.currencySymbol,
-      hourlyWage: updated.hourlyWage,
-      languageCode: updated.languageCode,
-      hasCompletedOnboarding: updated.hasCompletedOnboarding,
-      smallAmountThreshold: updated.smallAmountThreshold,
-      mediumAmountThreshold: updated.mediumAmountThreshold,
-      smallAmountWaitHours: updated.smallAmountWaitHours,
-      mediumAmountWaitDays: updated.mediumAmountWaitDays,
-      largeAmountWaitDays: updated.largeAmountWaitDays,
-    );
+    await _lock.synchronized(() async {
+      final current = state;
+      current.currency = currency;
+      current.currencySymbol = symbol;
+      await current.save();
+      // Trigger rebuild with a fresh copy - preserve all fields
+      final updated = DatabaseService.getSettings();
+      state = AppSettings(
+        currency: updated.currency,
+        currencySymbol: updated.currencySymbol,
+        hourlyWage: updated.hourlyWage,
+        languageCode: updated.languageCode,
+        hasCompletedOnboarding: updated.hasCompletedOnboarding,
+        smallAmountThreshold: updated.smallAmountThreshold,
+        mediumAmountThreshold: updated.mediumAmountThreshold,
+        smallAmountWaitHours: updated.smallAmountWaitHours,
+        mediumAmountWaitDays: updated.mediumAmountWaitDays,
+        largeAmountWaitDays: updated.largeAmountWaitDays,
+        useMinutesForSmallAmount: updated.useMinutesForSmallAmount,
+        currentStreak: updated.currentStreak,
+        longestStreak: updated.longestStreak,
+        lastDecisionDate: updated.lastDecisionDate,
+        monthlyBudget: updated.monthlyBudget,
+      );
+    });
   }
 
   Future<void> updateHourlyWage(double wage) async {
-    final current = state;
-    current.hourlyWage = wage;
-    await current.save();
-    // Trigger rebuild with a fresh copy
-    final updated = DatabaseService.getSettings();
-    state = AppSettings(
-      currency: updated.currency,
-      currencySymbol: updated.currencySymbol,
-      hourlyWage: updated.hourlyWage,
-      languageCode: updated.languageCode,
-      hasCompletedOnboarding: updated.hasCompletedOnboarding,
-      smallAmountThreshold: updated.smallAmountThreshold,
-      mediumAmountThreshold: updated.mediumAmountThreshold,
-      smallAmountWaitHours: updated.smallAmountWaitHours,
-      mediumAmountWaitDays: updated.mediumAmountWaitDays,
-      largeAmountWaitDays: updated.largeAmountWaitDays,
-    );
+    await _lock.synchronized(() async {
+      final current = state;
+      current.hourlyWage = wage;
+      await current.save();
+      // Trigger rebuild with a fresh copy - preserve all fields
+      final updated = DatabaseService.getSettings();
+      state = AppSettings(
+        currency: updated.currency,
+        currencySymbol: updated.currencySymbol,
+        hourlyWage: updated.hourlyWage,
+        languageCode: updated.languageCode,
+        hasCompletedOnboarding: updated.hasCompletedOnboarding,
+        smallAmountThreshold: updated.smallAmountThreshold,
+        mediumAmountThreshold: updated.mediumAmountThreshold,
+        smallAmountWaitHours: updated.smallAmountWaitHours,
+        mediumAmountWaitDays: updated.mediumAmountWaitDays,
+        largeAmountWaitDays: updated.largeAmountWaitDays,
+        useMinutesForSmallAmount: updated.useMinutesForSmallAmount,
+        currentStreak: updated.currentStreak,
+        longestStreak: updated.longestStreak,
+        lastDecisionDate: updated.lastDecisionDate,
+        monthlyBudget: updated.monthlyBudget,
+      );
+    });
   }
 
   Future<void> updateLanguage(String languageCode) async {
-    final current = state;
-    current.languageCode = languageCode;
-    await current.save();
-    // Trigger rebuild with a fresh copy
-    final updated = DatabaseService.getSettings();
-    state = AppSettings(
-      currency: updated.currency,
-      currencySymbol: updated.currencySymbol,
-      hourlyWage: updated.hourlyWage,
-      languageCode: updated.languageCode,
-      hasCompletedOnboarding: updated.hasCompletedOnboarding,
-      smallAmountThreshold: updated.smallAmountThreshold,
-      mediumAmountThreshold: updated.mediumAmountThreshold,
-      smallAmountWaitHours: updated.smallAmountWaitHours,
-      mediumAmountWaitDays: updated.mediumAmountWaitDays,
-      largeAmountWaitDays: updated.largeAmountWaitDays,
-    );
+    await _lock.synchronized(() async {
+      final current = state;
+      current.languageCode = languageCode;
+      await current.save();
+      // Trigger rebuild with a fresh copy - preserve all fields
+      final updated = DatabaseService.getSettings();
+      state = AppSettings(
+        currency: updated.currency,
+        currencySymbol: updated.currencySymbol,
+        hourlyWage: updated.hourlyWage,
+        languageCode: updated.languageCode,
+        hasCompletedOnboarding: updated.hasCompletedOnboarding,
+        smallAmountThreshold: updated.smallAmountThreshold,
+        mediumAmountThreshold: updated.mediumAmountThreshold,
+        smallAmountWaitHours: updated.smallAmountWaitHours,
+        mediumAmountWaitDays: updated.mediumAmountWaitDays,
+        largeAmountWaitDays: updated.largeAmountWaitDays,
+        useMinutesForSmallAmount: updated.useMinutesForSmallAmount,
+        currentStreak: updated.currentStreak,
+        longestStreak: updated.longestStreak,
+        lastDecisionDate: updated.lastDecisionDate,
+        monthlyBudget: updated.monthlyBudget,
+      );
+    });
   }
 
   Future<void> updateSmallAmountWaitHours(int hours) async {
@@ -194,11 +220,30 @@ class SettingsNotifier extends StateNotifier<AppSettings> {
   }
 
   Future<void> updateMonthlyBudget(double? budget) async {
-    final current = state;
-    current.monthlyBudget = budget;
-    await current.save();
-    // Trigger rebuild
-    state = DatabaseService.getSettings();
+    await _lock.synchronized(() async {
+      final current = state;
+      current.monthlyBudget = budget;
+      await current.save();
+      // Trigger rebuild with a fresh copy - preserve all fields
+      final updated = DatabaseService.getSettings();
+      state = AppSettings(
+        currency: updated.currency,
+        currencySymbol: updated.currencySymbol,
+        hourlyWage: updated.hourlyWage,
+        languageCode: updated.languageCode,
+        hasCompletedOnboarding: updated.hasCompletedOnboarding,
+        smallAmountThreshold: updated.smallAmountThreshold,
+        mediumAmountThreshold: updated.mediumAmountThreshold,
+        smallAmountWaitHours: updated.smallAmountWaitHours,
+        mediumAmountWaitDays: updated.mediumAmountWaitDays,
+        largeAmountWaitDays: updated.largeAmountWaitDays,
+        useMinutesForSmallAmount: updated.useMinutesForSmallAmount,
+        currentStreak: updated.currentStreak,
+        longestStreak: updated.longestStreak,
+        lastDecisionDate: updated.lastDecisionDate,
+        monthlyBudget: updated.monthlyBudget,
+      );
+    });
   }
 
   void refresh() {
