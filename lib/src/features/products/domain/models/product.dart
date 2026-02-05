@@ -89,12 +89,17 @@ class Product extends HiveObject {
 
   // Get progress percentage (0.0 to 1.0)
   double get progress {
-    final totalDuration = timerEndDate.difference(createdAt);
-    final elapsed = DateTime.now().difference(createdAt);
+    try {
+      final totalDuration = timerEndDate.difference(createdAt);
+      final elapsed = DateTime.now().difference(createdAt);
 
-    if (totalDuration.inSeconds == 0) return 1.0;
-    final progress = elapsed.inSeconds / totalDuration.inSeconds;
-    return progress.clamp(0.0, 1.0);
+      if (totalDuration.inSeconds == 0) return 1.0;
+      final progress = elapsed.inSeconds / totalDuration.inSeconds;
+      return progress.clamp(0.0, 1.0);
+    } catch (e) {
+      // If calculation fails, return a safe default
+      return 0.0;
+    }
   }
 }
 

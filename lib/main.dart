@@ -33,11 +33,48 @@ void main() async {
   // Initialize notifications
   await NotificationService().initialize();
 
+  // Validate streak on app startup (in case user hasn't opened app in days)
+  await _validateStreakOnStartup();
+
   runApp(
     const ProviderScope(
       child: MyApp(),
     ),
   );
+}
+
+/// Check if streak should be reset due to inactivity
+Future<void> _validateStreakOnStartup() async {
+  try {
+    final settings = DatabaseService.getSettings();
+    
+    if (settings.lastDecisionDate == null) {
+      // No decisions made yet, nothing to validate
+      return;
+    }
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final lastDate = DateTime(
+      settings.lastDecisionDate!.year,
+      settings.lastDecisionDate!.month,
+      settings.lastDecisionDate!.day,
+    );
+    
+    final daysSinceLastDecision = today.difference(lastDate).inDays;
+    
+    // If more than 1 day has passed without a decision, reset streak
+    if (daysSinceLastDecision > 1 && settings.currentStreak > 0) {
+      print('🔄 Resetting streak: $daysSinceLastDecision days of inactivity');
+      final updatedSettings = settings.copyWith(
+        currentStreak: 0,
+      );
+      await DatabaseService.updateSettings(updatedSettings);
+    }
+  } catch (e) {
+    print('⚠️ Error validating streak: $e');
+    // Don't crash the app if streak validation fails
+  }
 }
 
 class MyApp extends ConsumerWidget {

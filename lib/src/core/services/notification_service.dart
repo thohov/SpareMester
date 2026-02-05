@@ -89,6 +89,21 @@ class NotificationService {
     try {
       final pending = await _notifications.pendingNotificationRequests();
       print('📋 Pending notifications at startup: ${pending.length}');
+      
+      // Clean up old notifications (scheduled more than 30 days ago)
+      int canceledCount = 0;
+      
+      for (final notification in pending) {
+        // Cancel notifications without valid payload or very old ones
+        if (notification.payload == null || notification.payload!.isEmpty) {
+          await _notifications.cancel(notification.id);
+          canceledCount++;
+        }
+      }
+      
+      if (canceledCount > 0) {
+        print('🗑️ Cleaned up $canceledCount invalid notifications');
+      }
     } catch (e) {
       print('⚠️ Could not retrieve pending notifications, clearing all: $e');
       await _notifications.cancelAll();

@@ -135,38 +135,45 @@ class AppSettings extends HiveObject {
 
   // Update streak when a decision is made
   void updateStreak() {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    try {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
 
-    if (lastDecisionDate == null) {
-      // First decision ever
-      currentStreak = 1;
-      lastDecisionDate = today;
-    } else {
-      final lastDate = DateTime(
-        lastDecisionDate!.year,
-        lastDecisionDate!.month,
-        lastDecisionDate!.day,
-      );
-      final daysDiff = today.difference(lastDate).inDays;
-
-      if (daysDiff == 0) {
-        // Same day, don't change streak
-        return;
-      } else if (daysDiff == 1) {
-        // Consecutive day, increment streak
-        currentStreak++;
-      } else {
-        // Break in streak, reset
+      if (lastDecisionDate == null) {
+        // First decision ever
         currentStreak = 1;
+        lastDecisionDate = today;
+      } else {
+        final lastDate = DateTime(
+          lastDecisionDate!.year,
+          lastDecisionDate!.month,
+          lastDecisionDate!.day,
+        );
+        final daysDiff = today.difference(lastDate).inDays;
+
+        if (daysDiff == 0) {
+          // Same day, don't change streak
+          return;
+        } else if (daysDiff == 1) {
+          // Consecutive day, increment streak
+          currentStreak++;
+        } else {
+          // Break in streak, reset
+          currentStreak = 1;
+        }
+
+        lastDecisionDate = today;
       }
 
-      lastDecisionDate = today;
-    }
-
-    // Update longest streak if current is better
-    if (currentStreak > longestStreak) {
-      longestStreak = currentStreak;
+      // Update longest streak if current is better
+      if (currentStreak > longestStreak) {
+        longestStreak = currentStreak;
+      }
+    } catch (e) {
+      // If streak calculation fails, don't crash - just log
+      print('⚠️ Error updating streak: $e');
+      // Reset to safe state
+      currentStreak = 0;
     }
 
     // Note: Persistence is handled by caller (products_provider)
