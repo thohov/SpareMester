@@ -213,15 +213,31 @@ class ProductsNotifier extends StateNotifier<List<Product>> {
 
   // Get products by status
   List<Product> getWaitingProducts() {
-    return state
-        .where((p) => p.status == ProductStatus.waiting && !p.isTimerFinished)
-        .toList();
+    try {
+      return state.where((p) {
+        try {
+          return p.status == ProductStatus.waiting && !p.isTimerFinished;
+        } catch (e) {
+          return false;
+        }
+      }).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   List<Product> getCompletedProducts() {
-    return state
-        .where((p) => p.status == ProductStatus.waiting && p.isTimerFinished)
-        .toList();
+    try {
+      return state.where((p) {
+        try {
+          return p.status == ProductStatus.waiting && p.isTimerFinished;
+        } catch (e) {
+          return false;
+        }
+      }).toList();
+    } catch (e) {
+      return [];
+    }
   }
 }
 

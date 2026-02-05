@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pengespareapp/l10n/app_localizations.dart';
 import 'package:pengespareapp/src/core/providers/products_provider.dart';
+import 'package:pengespareapp/src/features/products/domain/models/product.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product_category.dart';
 import 'package:pengespareapp/src/features/products/presentation/pages/add_product_page.dart';
 import 'package:pengespareapp/src/features/products/presentation/widgets/product_card.dart';
@@ -26,9 +27,30 @@ class _ProductListPageState extends ConsumerState<ProductListPage> {
         ? allProducts
         : allProducts.where((p) => p.category == _selectedCategory).toList();
 
-    // Separate products by timer status
-    final completedProducts = products.where((p) => p.isTimerFinished).toList();
-    final waitingProducts = products.where((p) => !p.isTimerFinished).toList();
+    // Separate products by timer status - with error handling
+    List<Product> completedProducts = [];
+    List<Product> waitingProducts = [];
+    
+    try {
+      completedProducts = products.where((p) {
+        try {
+          return p.isTimerFinished;
+        } catch (e) {
+          return false;
+        }
+      }).toList();
+      
+      waitingProducts = products.where((p) {
+        try {
+          return !p.isTimerFinished;
+        } catch (e) {
+          return true; // Treat corrupt products as waiting
+        }
+      }).toList();
+    } catch (e) {
+      // Fallback: treat all as waiting
+      waitingProducts = products;
+    }
 
     return Scaffold(
       appBar: AppBar(

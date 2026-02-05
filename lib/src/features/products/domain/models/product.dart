@@ -67,12 +67,24 @@ class Product extends HiveObject {
   }
 
   // Check if timer has finished
-  bool get isTimerFinished => DateTime.now().isAfter(timerEndDate);
+  bool get isTimerFinished {
+    try {
+      return DateTime.now().isAfter(timerEndDate);
+    } catch (e) {
+      // If timerEndDate is corrupt, treat as not finished
+      return false;
+    }
+  }
 
   // Get remaining time
   Duration get timeRemaining {
-    if (isTimerFinished) return Duration.zero;
-    return timerEndDate.difference(DateTime.now());
+    try {
+      if (isTimerFinished) return Duration.zero;
+      return timerEndDate.difference(DateTime.now());
+    } catch (e) {
+      // If calculation fails, return zero duration
+      return Duration.zero;
+    }
   }
 
   // Get progress percentage (0.0 to 1.0)

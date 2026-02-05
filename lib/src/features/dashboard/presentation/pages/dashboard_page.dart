@@ -26,15 +26,33 @@ class DashboardPage extends ConsumerWidget {
     final impulseBuys = stats['impulseBuys'] as int;
     final plannedPurchases = stats['plannedPurchases'] as int;
     
-    // Count waiting products (in countdown)
-    final waitingProducts = products.where((p) => 
-      p.status == ProductStatus.waiting && !p.isTimerFinished
-    ).length;
+    // Count waiting products (in countdown) - with error handling
+    int waitingProducts = 0;
+    int completedProducts = 0;
     
-    // Count completed products (timer done, awaiting decision)
-    final completedProducts = products.where((p) => 
-      p.status == ProductStatus.waiting && p.isTimerFinished
-    ).length;
+    try {
+      waitingProducts = products.where((p) {
+        try {
+          return p.status == ProductStatus.waiting && !p.isTimerFinished;
+        } catch (e) {
+          // Skip products with corrupt timer data
+          return false;
+        }
+      }).length;
+      
+      completedProducts = products.where((p) {
+        try {
+          return p.status == ProductStatus.waiting && p.isTimerFinished;
+        } catch (e) {
+          // Skip products with corrupt timer data
+          return false;
+        }
+      }).length;
+    } catch (e) {
+      // Fallback to 0 if filtering fails completely
+      waitingProducts = 0;
+      completedProducts = 0;
+    }
 
     return Scaffold(
       appBar: AppBar(
