@@ -96,7 +96,6 @@ class SettingsPage extends ConsumerWidget {
                               .read(settingsProvider.notifier)
                               .updateHourlyWage(wage);
                         }
-                        controller.dispose();
                         Navigator.pop(context);
                       },
                       child: Text(l10n.save),
@@ -197,14 +196,12 @@ class SettingsPage extends ConsumerWidget {
                         await ref
                             .read(settingsProvider.notifier)
                             .updateMonthlyBudget(null);
-                        controller.dispose();
-                        Navigator.pop(context);
+                        if (context.mounted) Navigator.pop(context);
                       },
                       child: const Text('Fjern budsjett'),
                     ),
                     TextButton(
                       onPressed: () {
-                        controller.dispose();
                         Navigator.pop(context);
                       },
                       child: Text(l10n.cancel),
@@ -217,8 +214,7 @@ class SettingsPage extends ConsumerWidget {
                               .read(settingsProvider.notifier)
                               .updateMonthlyBudget(budget);
                         }
-                        controller.dispose();
-                        Navigator.pop(context);
+                        if (context.mounted) Navigator.pop(context);
                       },
                       child: Text(l10n.save),
                     ),
@@ -579,7 +575,7 @@ class SettingsPage extends ConsumerWidget {
                   fontSize: 12,
                   color: Theme.of(context)
                       .colorScheme
-                      .onBackground
+                      .onSurface
                       .withOpacity(0.6),
                   fontStyle: FontStyle.italic,
                 ),
@@ -641,7 +637,6 @@ class SettingsPage extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () {
-              controller.dispose();
               Navigator.pop(context);
             },
             child: Text(l10n.cancel),
@@ -652,7 +647,6 @@ class SettingsPage extends ConsumerWidget {
               if (value != null && value > 0) {
                 await onUpdate(value);
               }
-              controller.dispose();
               if (context.mounted) {
                 Navigator.pop(context);
               }
@@ -690,7 +684,6 @@ class SettingsPage extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () {
-              controller.dispose();
               Navigator.pop(context);
             },
             child: Text(l10n.cancel),
@@ -701,7 +694,6 @@ class SettingsPage extends ConsumerWidget {
               if (value != null && value > 0) {
                 await onUpdate(value);
               }
-              controller.dispose();
               if (context.mounted) {
                 Navigator.pop(context);
               }

@@ -5,6 +5,7 @@ import 'package:pengespareapp/src/core/providers/products_provider.dart';
 import 'package:pengespareapp/src/core/providers/settings_provider.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product.dart';
 import 'package:pengespareapp/src/features/products/domain/models/product_category.dart';
+import 'package:pengespareapp/src/features/settings/data/app_settings.dart';
 
 class StatisticsPage extends ConsumerWidget {
   const StatisticsPage({super.key});
@@ -94,7 +95,7 @@ class StatisticsPage extends ConsumerWidget {
 
 class _SavingsOverTimeChart extends StatelessWidget {
   final List<Product> products;
-  final settings;
+  final AppSettings settings;
 
   const _SavingsOverTimeChart({
     required this.products,
@@ -174,7 +175,7 @@ class _SavingsOverTimeChart extends StatelessWidget {
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    horizontalInterval: cumulative / 4,
+                    horizontalInterval: cumulative > 0 ? cumulative / 4 : 1,
                   ),
                   titlesData: FlTitlesData(
                     leftTitles: AxisTitles(
@@ -225,7 +226,7 @@ class _SavingsOverTimeChart extends StatelessWidget {
 
 class _CategoryDistributionChart extends StatelessWidget {
   final List<Product> products;
-  final settings;
+  final AppSettings settings;
 
   const _CategoryDistributionChart({
     required this.products,
@@ -358,7 +359,7 @@ class _CategoryDistributionChart extends StatelessWidget {
 
 class _DecisionTypeChart extends StatelessWidget {
   final List<Product> products;
-  final settings;
+  final AppSettings settings;
 
   const _DecisionTypeChart({
     required this.products,
@@ -478,7 +479,7 @@ class _DecisionTypeChart extends StatelessWidget {
 
 class _MonthlySpendingChart extends StatelessWidget {
   final List<Product> products;
-  final settings;
+  final AppSettings settings;
 
   const _MonthlySpendingChart({
     required this.products,
@@ -508,7 +509,7 @@ class _MonthlySpendingChart extends StatelessWidget {
       monthlySpending[monthKey] = spending;
     }
 
-    if (monthlySpending.isEmpty) {
+    if (monthlySpending.values.every((v) => v == 0)) {
       return Card(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -541,9 +542,8 @@ class _MonthlySpendingChart extends StatelessWidget {
       return FlSpot(entry.key.toDouble(), monthlySpending[entry.value]!);
     }).toList();
 
-    final maxY = monthlySpending.values.isEmpty
-        ? 1000.0
-        : monthlySpending.values.reduce((a, b) => a > b ? a : b) * 1.2;
+    final maxRawValue = monthlySpending.values.reduce((a, b) => a > b ? a : b);
+    final maxY = maxRawValue > 0 ? maxRawValue * 1.2 : 1000.0;
 
     return Card(
       child: Padding(

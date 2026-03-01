@@ -42,11 +42,18 @@
             </intent-filter>
         </activity>
         
-        <!-- Notification receiver for boot completed -->
+        <!-- Notification receiver for boot completed.
+             MUST be exported="true": BOOT_COMPLETED is a system broadcast sent by
+             the Android OS (external to the app). exported="false" prevents it from
+             being received, so all scheduled notifications would be lost after any
+             reboot or system update. -->
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
         

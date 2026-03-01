@@ -43,7 +43,7 @@ class UrlMetadataService {
       if (match != null && match.groupCount >= 1) {
         var imageUrl = match.group(1);
         if (imageUrl != null) {
-          imageUrl = _optimizeImageUrl(imageUrl);
+          imageUrl = _optimizeImageUrl(_resolveUrl(imageUrl, url));
           print(
               '✅ Fant bilde med pattern 1 (og:image property først): $imageUrl');
           return imageUrl;
@@ -57,7 +57,7 @@ class UrlMetadataService {
       if (match != null && match.groupCount >= 1) {
         var imageUrl = match.group(1);
         if (imageUrl != null) {
-          imageUrl = _optimizeImageUrl(imageUrl);
+          imageUrl = _optimizeImageUrl(_resolveUrl(imageUrl, url));
           print(
               '✅ Fant bilde med pattern 2 (og:image content først): $imageUrl');
           return imageUrl;
@@ -72,7 +72,7 @@ class UrlMetadataService {
       if (match != null && match.groupCount >= 1) {
         var imageUrl = match.group(1);
         if (imageUrl != null) {
-          imageUrl = _optimizeImageUrl(imageUrl);
+          imageUrl = _optimizeImageUrl(_resolveUrl(imageUrl, url));
           print(
               '✅ Fant bilde med pattern 3 (twitter:image name først): $imageUrl');
           return imageUrl;
@@ -87,7 +87,7 @@ class UrlMetadataService {
       if (match != null && match.groupCount >= 1) {
         var imageUrl = match.group(1);
         if (imageUrl != null) {
-          imageUrl = _optimizeImageUrl(imageUrl);
+          imageUrl = _optimizeImageUrl(_resolveUrl(imageUrl, url));
           print(
               '✅ Fant bilde med pattern 4 (twitter:image content først): $imageUrl');
           return imageUrl;
@@ -111,8 +111,8 @@ class UrlMetadataService {
         if (match != null && match.groupCount >= 1) {
           var imageUrl = match.group(1);
           if (imageUrl != null) {
-            // Optimize image size for mobile display
-            imageUrl = _optimizeImageUrl(imageUrl);
+            // Resolve relative URL then optimise size for mobile display
+            imageUrl = _optimizeImageUrl(_resolveUrl(imageUrl, url));
             print('✅ Fant produktbilde i <img> tag: $imageUrl');
             return imageUrl;
           }
@@ -148,32 +148,51 @@ class UrlMetadataService {
         .replaceAll(RegExp(r'/1500/'), '/640/')
         .replaceAll(RegExp(r'/2048/'), '/640/');
 
-    // Pattern 3: W=1500 style (e.g., resize.aspx?W=1500&file=...)
-    optimized = optimized
-        .replaceAll(RegExp(r'[?&]W=1500', caseSensitive: false), '?W=640')
-        .replaceAll(RegExp(r'[?&]W=1200', caseSensitive: false), '?W=640')
-        .replaceAll(RegExp(r'[?&]W=2000', caseSensitive: false), '?W=640')
-        .replaceAll(RegExp(r'[?&]W=2048', caseSensitive: false), '?W=640')
-        .replaceAll(RegExp(r'[?&]w=1500', caseSensitive: false), '?w=640')
-        .replaceAll(RegExp(r'[?&]w=1200', caseSensitive: false), '?w=640');
+    // Pattern 3: W= / w= query-parameter style (e.g. ?W=1500 or &w=1200)
+    // IMPORTANT: must preserve ? vs & – replacing both with ? breaks multi-param URLs
+    optimized = optimized.replaceAllMapped(
+      RegExp(r'([?&])([Ww])=(1500|1200|2000|2048)'),
+      (m) => '${m.group(1)}${m.group(2)}=640',
+    );
 
-    // Pattern 4: width=1500 style
+    // Pattern 4: width=XXXX style (no separator issue here)
     optimized = optimized
         .replaceAll(RegExp(r'width=1500', caseSensitive: false), 'width=640')
         .replaceAll(RegExp(r'width=1200', caseSensitive: false), 'width=640')
         .replaceAll(RegExp(r'width=2000', caseSensitive: false), 'width=640');
 
-    // Pattern 5: ?size=large or ?quality=high
-    optimized = optimized
-        .replaceAll(
-            RegExp(r'[?&]size=large', caseSensitive: false), '?size=medium')
-        .replaceAll(RegExp(r'[?&]quality=high', caseSensitive: false),
-            '?quality=medium');
+    // Pattern 5: ?size=large or ?quality=high – preserve separator
+    optimized = optimized.replaceAllMapped(
+      RegExp(r'([?&])size=large', caseSensitive: false),
+      (m) => '${m.group(1)}size=medium',
+    );
+    optimized = optimized.replaceAllMapped(
+      RegExp(r'([?&])quality=high', caseSensitive: false),
+      (m) => '${m.group(1)}quality=medium',
+    );
 
     if (optimized != imageUrl) {
       print('📐 Optimalisert bildestørrelse: $imageUrl -> $optimized');
     }
 
     return optimized;
+  }
+
+  /// Resolves a potentially relative image URL to an absolute URL.
+  /// e.g. /images/product.jpg → https://example.com/images/product.jpg
+  static String _resolveUrl(String imageUrl, String pageUrl) {
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl; // Already absolute
+    }
+    if (imageUrl.startsWith('//')) {
+      return 'https:$imageUrl'; // Protocol-relative
+    }
+    if (imageUrl.startsWith('/')) {
+      final base = Uri.tryParse(pageUrl);
+      if (base != null) {
+        return '${base.scheme}://${base.host}$imageUrl';
+      }
+    }
+    return imageUrl; // Unknown format – return as-is
   }
 }

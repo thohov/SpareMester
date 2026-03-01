@@ -45,13 +45,18 @@ class _ProductCardState extends ConsumerState<ProductCard> {
   String _formatDuration(Duration duration) {
     if (duration.isNegative) return '0:00:00';
 
-    final hours = duration.inHours;
+    final days = duration.inDays;
+    final hours = duration.inHours.remainder(24);
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
 
-    if (hours > 24) {
-      final days = (hours / 24).floor();
-      return '$days dager ${hours % 24}t';
+    if (days >= 1) {
+      // e.g. "3 dager 5t" or "1 dag 0t"
+      final dagLabel = days == 1 ? 'dag' : 'dager';
+      if (hours > 0) {
+        return '$days $dagLabel ${hours}t';
+      }
+      return '$days $dagLabel';
     }
 
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';

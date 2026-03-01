@@ -4,6 +4,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:synchronized/synchronized.dart';
 import 'dart:io' show Platform;
+import 'package:pengespareapp/src/core/services/error_log_service.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -26,91 +27,118 @@ class NotificationService {
     _initCompleter = Completer<void>();
 
     print('🔔 Initialiserer NotificationService...');
-
-    // Request notification permission on Android 13+ (API 33+)
-    // On older Android versions (10-12), notifications are granted by default
-    if (Platform.isAndroid) {
-      try {
-        final notificationStatus = await Permission.notification.status;
-        print('📱 Notification permission status: $notificationStatus');
-
-        if (notificationStatus.isDenied) {
-          print('⚠️ Ber om notification permission...');
-          final result = await Permission.notification.request();
-          print('✅ Notification permission result: $result');
-        }
-      } catch (e) {
-        // On Android < 13, Permission.notification may not exist
-        // This is fine - notifications work by default on older versions
-        print('ℹ️ Notification permission not needed on this Android version');
-      }
-
-      // Request exact alarm permission for Android 12+ (API 31+)
-      try {
-        if (await Permission.scheduleExactAlarm.isDenied) {
-          print('⚠️ Ber om exact alarm permission...');
-          final result = await Permission.scheduleExactAlarm.request();
-          print('✅ Exact alarm permission result: $result');
-        }
-      } catch (e) {
-        print('ℹ️ Exact alarm permission not needed on this Android version');
-      }
-    }
-
-    // Android initialization settings
-    const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-    );
-
     try {
-      await _notifications.initialize(
-        initSettings,
-        onDidReceiveNotificationResponse: _onNotificationTapped,
+      // Request notification permission on Android 13+ (API 33+)
+      // On older Android versions (10-12), notifications are granted by default
+      if (Platform.isAndroid) {
+        try {
+          final notificationStatus = await Permission.notification.status;
+          print('📱 Notification permission status: $notificationStatus');
+
+          if (notificationStatus.isDenied) {
+            print('⚠️ Ber om notification permission...');
+            final result = await Permission.notification.request();
+            print('✅ Notification permission result: $result');
+          }
+        } catch (e) {
+          // On Android < 13, Permission.notification may not exist
+          // This is fine - notifications work by default on older versions
+          print(
+              'ℹ️ Notification permission not needed on this Android version');
+        }
+
+        // NOTE: We intentionally do NOT request scheduleExactAlarm here.
+        // Calling .request() opens the system-settings page and blocks this
+        // Future indefinitely until the user returns – causing the splash-screen
+        // hang.  Instead we check the status silently and fall back to inexact
+        // scheduling when the permission is not granted (see scheduleProductNotification).
+        try {
+          final exactAlarmStatus = await Permission.scheduleExactAlarm.status;
+          print('📱 Exact alarm permission status: $exactAlarmStatus');
+        } catch (e) {
+          print('ℹ️ Exact alarm permission check skipped on this Android version');
+        }
+      }
+
+      // Android initialization settings
+      const androidSettings =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
+
+      const initSettings = InitializationSettings(
+        android: androidSettings,
       );
-    } catch (e) {
-      print('⚠️ Notification initialization failed, clearing corrupt data: $e');
-      // Try to cancel all notifications and reinitialize
+
+      try {
+        await _notifications.initialize(
+          initSettings,
+          onDidReceiveNotificationResponse: _onNotificationTapped,
+        );
+      } catch (e) {
+        print(
+            '⚠️ Notification initialization failed, clearing corrupt data: $e');
+        // Try to cancel all notifications and reinitialize
+        try {
+          await _notifications.cancelAll();
+        } catch (_) {
+          // Ignore if cancelAll also fails
+        }
+        // Try initializing again
+        await _notifications.initialize(
+          initSettings,
+          onDidReceiveNotificationResponse: _onNotificationTapped,
+        );
+      }
+
+      // Clean up any potentially corrupt pending notifications
+      try {
+        final pending = await _notifications.pendingNotificationRequests();
+        print('📋 Pending notifications at startup: ${pending.length}');
+
+        // Clean up old notifications (scheduled more than 30 days ago)
+        int canceledCount = 0;
+
+        for (final notification in pending) {
+          // Cancel notifications without valid payload or very old ones
+          if (notification.payload == null || notification.payload!.isEmpty) {
+            await _notifications.cancel(notification.id);
+            canceledCount++;
+          }
+        }
+
+        if (canceledCount > 0) {
+          print('🗑️ Cleaned up $canceledCount invalid notifications');
+        }
+      } catch (e) {
+        print('⚠️ Could not retrieve pending notifications, clearing all: $e');
+        try {
+          await _notifications.cancelAll();
+        } catch (_) {
+          // Ignore cleanup failures
+        }
+      }
+
+      print('✅ NotificationService initialisert!');
+    } catch (e, stackTrace) {
+      print('⚠️ NotificationService init failed: $e');
       try {
         await _notifications.cancelAll();
       } catch (_) {
-        // Ignore if cancelAll also fails
+        // Ignore cleanup failures
       }
-      // Try initializing again
-      await _notifications.initialize(
-        initSettings,
-        onDidReceiveNotificationResponse: _onNotificationTapped,
-      );
+      try {
+        ErrorLogService.logError(
+          errorType: 'NotificationServiceInitError',
+          errorMessage: e.toString(),
+          stackTrace: stackTrace.toString(),
+        );
+      } catch (_) {
+        // ErrorLogService may not be ready; ignore
+      }
+    } finally {
+      if (!_initCompleter!.isCompleted) {
+        _initCompleter!.complete();
+      }
     }
-
-    // Clean up any potentially corrupt pending notifications
-    try {
-      final pending = await _notifications.pendingNotificationRequests();
-      print('📋 Pending notifications at startup: ${pending.length}');
-      
-      // Clean up old notifications (scheduled more than 30 days ago)
-      int canceledCount = 0;
-      
-      for (final notification in pending) {
-        // Cancel notifications without valid payload or very old ones
-        if (notification.payload == null || notification.payload!.isEmpty) {
-          await _notifications.cancel(notification.id);
-          canceledCount++;
-        }
-      }
-      
-      if (canceledCount > 0) {
-        print('🗑️ Cleaned up $canceledCount invalid notifications');
-      }
-    } catch (e) {
-      print('⚠️ Could not retrieve pending notifications, clearing all: $e');
-      await _notifications.cancelAll();
-    }
-
-    print('✅ NotificationService initialisert!');
-    _initCompleter!.complete();
   }
 
   void _onNotificationTapped(NotificationResponse response) {
@@ -149,6 +177,18 @@ class NotificationService {
       // Use product ID hash as notification ID to ensure uniqueness
       final notificationId = productId.hashCode;
 
+      // Choose exact vs inexact scheduling based on current permission.
+      // We NEVER request the permission here – that would block the UI.
+      AndroidScheduleMode scheduleMode = AndroidScheduleMode.inexact;
+      try {
+        if (Platform.isAndroid && await Permission.scheduleExactAlarm.isGranted) {
+          scheduleMode = AndroidScheduleMode.exactAllowWhileIdle;
+        }
+      } catch (_) {
+        // Permission check failed – fall back to inexact
+      }
+      print('🕐 Scheduling mode: $scheduleMode');
+
       try {
         await _notifications.zonedSchedule(
           notificationId,
@@ -156,7 +196,7 @@ class NotificationService {
           'Nå kan du bestemme om du vil kjøpe "$productName"',
           tz.TZDateTime.from(scheduledTime, tz.local),
           notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+          androidScheduleMode: scheduleMode,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
           payload: productId,
@@ -185,7 +225,7 @@ class NotificationService {
               'Nå kan du bestemme om du vil kjøpe "$productName"',
               tz.TZDateTime.from(scheduledTime, tz.local),
               notificationDetails,
-              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+              androidScheduleMode: scheduleMode,
               uiLocalNotificationDateInterpretation:
                   UILocalNotificationDateInterpretation.absoluteTime,
               payload: productId,

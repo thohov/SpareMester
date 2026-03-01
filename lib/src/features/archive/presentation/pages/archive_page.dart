@@ -19,7 +19,9 @@ class ArchivePage extends ConsumerWidget {
     final archivedProducts = allProducts
         .where((p) => p.status == ProductStatus.archived)
         .toList()
-      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      ..sort((a, b) =>
+          (b.decisionDate ?? b.createdAt)
+              .compareTo(a.decisionDate ?? a.createdAt));
 
     return Scaffold(
       appBar: AppBar(

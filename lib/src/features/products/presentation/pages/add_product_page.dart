@@ -232,8 +232,12 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
                   if (value == null || value.trim().isEmpty) {
                     return l10n.pleaseEnterPrice;
                   }
-                  if (double.tryParse(value.trim()) == null) {
+                  final parsed = double.tryParse(value.trim());
+                  if (parsed == null) {
                     return l10n.pleaseEnterValidPrice;
+                  }
+                  if (parsed <= 0) {
+                    return 'Prisen må være større enn 0';
                   }
                   return null;
                 },

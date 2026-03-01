@@ -250,6 +250,38 @@ class AchievementService {
       }
     }
 
+    // Quick win: made any decision within 1 hour of adding the product
+    // (recognised impulsivity very quickly)
+    final hasQuickWin = allProducts.any((p) =>
+        p.status == ProductStatus.archived &&
+        p.decision != null &&
+        p.decisionDate != null &&
+        p.decisionDate!.difference(p.createdAt).abs().inHours < 1);
+
+    if (hasQuickWin) {
+      final achievement = getAchievement(AchievementType.quickWin.id);
+      if (achievement != null && !achievement.isUnlocked) {
+        await unlockAchievement(AchievementType.quickWin.id);
+        newlyUnlocked.add(achievement);
+      }
+    }
+
+    // Patient saver: waited the full cooldown on a product costing >= 2000
+    // (did NOT press "I am weak" – decision is avoided or planned purchase)
+    final hasPatientSave = allProducts.any((p) =>
+        p.status == ProductStatus.archived &&
+        p.decision != null &&
+        p.decision != PurchaseDecision.impulseBuy &&
+        p.price >= 2000);
+
+    if (hasPatientSave) {
+      final achievement = getAchievement(AchievementType.patientSaver.id);
+      if (achievement != null && !achievement.isUnlocked) {
+        await unlockAchievement(AchievementType.patientSaver.id);
+        newlyUnlocked.add(achievement);
+      }
+    }
+
     return newlyUnlocked;
   }
 }

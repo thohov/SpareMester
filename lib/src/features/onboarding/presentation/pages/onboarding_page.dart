@@ -28,7 +28,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   }
 
   void _onDone() async {
-    final hourlyWage = double.tryParse(_wageController.text) ?? 200.0;
+    // Guard: ensure wage is positive to prevent division-by-zero in
+    // work-hours calculations across the app.
+    final parsed = double.tryParse(_wageController.text.trim());
+    final hourlyWage = (parsed != null && parsed > 0) ? parsed : 200.0;
 
     final settings = DatabaseService.getSettings();
     settings.currency = _selectedCurrency.code;
@@ -298,14 +301,14 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       titleTextStyle: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.bold,
-        color: Theme.of(context).colorScheme.onBackground,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
       bodyTextStyle: TextStyle(
         fontSize: 16,
-        color: Theme.of(context).colorScheme.onBackground.withOpacity(0.7),
+        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
       ),
       imagePadding: const EdgeInsets.only(top: 40, bottom: 8),
-      pageColor: Theme.of(context).colorScheme.background,
+      pageColor: Theme.of(context).colorScheme.surface,
       contentMargin: const EdgeInsets.symmetric(horizontal: 16),
       bodyAlignment: Alignment.center,
       imageAlignment: Alignment.topCenter,

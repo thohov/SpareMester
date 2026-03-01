@@ -10,6 +10,7 @@ import 'package:pengespareapp/src/core/services/error_log_service.dart';
 import 'package:pengespareapp/src/features/achievements/services/achievement_service.dart';
 import 'package:pengespareapp/src/core/theme/app_theme.dart';
 import 'package:pengespareapp/src/core/providers/settings_provider.dart';
+import 'package:pengespareapp/src/features/products/domain/models/product.dart';
 import 'package:pengespareapp/src/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:pengespareapp/src/features/home/home_page.dart';
 
@@ -17,24 +18,45 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize timezone database
-  tz.initializeTimeZones();
-  // Set local timezone to Oslo/Europe (Norway)
-  tz.setLocalLocation(tz.getLocation('Europe/Oslo'));
+  try {
+    tz.initializeTimeZones();
+    // Set local timezone to Oslo/Europe (Norway)
+    tz.setLocalLocation(tz.getLocation('Europe/Oslo'));
+  } catch (e) {
+    print('⚠️ Timezone init failed, using device default: $e');
+  }
 
   // Initialize Hive database FIRST (required by ErrorLogService)
-  await DatabaseService.init();
+  await _safeInit('DatabaseService', () async {
+    await DatabaseService.init();
+  });
 
   // Initialize error logging after Hive is ready
-  await ErrorLogService.initialize();
+  await _safeInit('ErrorLogService', () async {
+    await ErrorLogService.initialize();
+  });
 
   // Initialize achievement service
-  await AchievementService().initialize();
+  await _safeInit('AchievementService', () async {
+    await AchievementService().initialize();
+  });
 
-  // Initialize notifications
-  await NotificationService().initialize();
+  // Initialize notifications (guarded + timeout to avoid splash hang)
+  await _safeInit('NotificationService', () async {
+    await NotificationService()
+        .initialize()
+        .timeout(const Duration(seconds: 8));
+  });
+
+  // Reschedule any notifications lost due to reboot / system update / Samsung deep sleep
+  await _safeInit('NotificationReschedule', () async {
+    await _rescheduleNotificationsIfNeeded();
+  });
 
   // Validate streak on app startup (in case user hasn't opened app in days)
-  await _validateStreakOnStartup();
+  await _safeInit('StreakValidation', () async {
+    await _validateStreakOnStartup();
+  });
 
   runApp(
     const ProviderScope(
@@ -43,6 +65,65 @@ void main() async {
   );
 }
 
+Future<void> _safeInit(String name, Future<void> Function() action) async {
+  try {
+    await action();
+  } catch (e, stackTrace) {
+    print('⚠️ $name init failed: $e');
+    try {
+      ErrorLogService.logError(
+        errorType: '${name}InitError',
+        errorMessage: e.toString(),
+        stackTrace: stackTrace.toString(),
+      );
+    } catch (_) {
+      // ErrorLogService may not be ready; ignore
+    }
+  }
+}
+/// Reschedule any notifications that were lost due to a device reboot,
+/// system update (Samsung/Android), or aggressive battery optimisation
+/// killing the scheduled alarm. Runs on every cold start as a safety net.
+Future<void> _rescheduleNotificationsIfNeeded() async {
+  try {
+    final activeProducts = DatabaseService.getActiveProducts();
+    // Only care about products still waiting with a future timer end
+    final needsNotification = activeProducts
+        .where((p) =>
+            p.status == ProductStatus.waiting && !p.isTimerFinished)
+        .toList();
+
+    if (needsNotification.isEmpty) return;
+
+    // Fetch currently pending notifications once
+    final pending = await NotificationService().getPendingNotifications();
+    final pendingIds = pending.map((n) => n.id).toSet();
+
+    int rescheduled = 0;
+    for (final product in needsNotification) {
+      final notificationId = product.id.hashCode;
+      if (!pendingIds.contains(notificationId)) {
+        // Alarm is gone – reschedule silently
+        try {
+          await NotificationService().scheduleProductNotification(
+            productId: product.id,
+            productName: product.name,
+            scheduledTime: product.timerEndDate,
+          );
+          rescheduled++;
+        } catch (e) {
+          print('\u26a0\ufe0f Could not reschedule notification for ${product.name}: $e');
+        }
+      }
+    }
+
+    if (rescheduled > 0) {
+      print('\ud83d\udd04 Rescheduled $rescheduled notification(s) after boot/update/sleep');
+    }
+  } catch (e) {
+    print('\u26a0\ufe0f Error in _rescheduleNotificationsIfNeeded: $e');
+  }
+}
 /// Check if streak should be reset due to inactivity
 Future<void> _validateStreakOnStartup() async {
   try {
