@@ -735,6 +735,11 @@ class SettingsPage extends ConsumerWidget {
         ),
         content: SizedBox(
           width: double.maxFinite,
+          // A fixed height is required when logs exist so that the Expanded
+          // ListView child has a bounded parent height to expand into.
+          // Without this, Column(mainAxisSize.min) gives unbounded height
+          // and Flutter throws a RenderFlex error, crashing the dialog.
+          height: logs.isNotEmpty ? 420 : null,
           child: logs.isEmpty
               ? const Center(
                   child: Column(
@@ -755,7 +760,8 @@ class SettingsPage extends ConsumerWidget {
                   ),
                 )
               : Column(
-                  mainAxisSize: MainAxisSize.min,
+                  // No mainAxisSize.min – Column must fill the SizedBox(height:420)
+                  // so that the Expanded child below gets a valid constraint.
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
@@ -781,7 +787,6 @@ class SettingsPage extends ConsumerWidget {
                     const SizedBox(height: 16),
                     Expanded(
                       child: ListView.separated(
-                        shrinkWrap: true,
                         itemCount: logs.length,
                         separatorBuilder: (_, __) => const Divider(),
                         itemBuilder: (context, index) {
