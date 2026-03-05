@@ -43,7 +43,7 @@ class ArchivePage extends ConsumerWidget {
             Icon(
               Icons.archive_outlined,
               size: 80,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 24),
             Text(
@@ -58,7 +58,7 @@ class ArchivePage extends ConsumerWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.6),
+                      .withValues(alpha: 0.6),
                   ),
               textAlign: TextAlign.center,
             ),
@@ -196,7 +196,7 @@ class ArchivePage extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: getDecisionColor().withOpacity(0.1),
+                    color: getDecisionColor().withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -244,7 +244,7 @@ class ArchivePage extends ConsumerWidget {
       children: [
         Icon(icon,
             size: 16,
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6)),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
         const SizedBox(width: 8),
         Expanded(
           child: Row(
@@ -255,7 +255,7 @@ class ArchivePage extends ConsumerWidget {
                       color: Theme.of(context)
                           .colorScheme
                           .onSurface
-                          .withOpacity(0.6),
+                      .withValues(alpha: 0.6),
                     ),
               ),
               Flexible(

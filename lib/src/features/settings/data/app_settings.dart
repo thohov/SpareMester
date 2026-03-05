@@ -4,6 +4,8 @@ part 'app_settings.g.dart';
 
 @HiveType(typeId: 3)
 class AppSettings extends HiveObject {
+  static const Object _noChange = Object();
+
   @HiveField(0)
   String currency; // NOK, USD, EUR, GBP
 
@@ -108,8 +110,8 @@ class AppSettings extends HiveObject {
     bool? useMinutesForSmallAmount,
     int? currentStreak,
     int? longestStreak,
-    DateTime? lastDecisionDate,
-    double? monthlyBudget,
+    Object? lastDecisionDate = _noChange,
+    Object? monthlyBudget = _noChange,
   }) {
     return AppSettings(
       currency: currency ?? this.currency,
@@ -128,8 +130,12 @@ class AppSettings extends HiveObject {
           useMinutesForSmallAmount ?? this.useMinutesForSmallAmount,
       currentStreak: currentStreak ?? this.currentStreak,
       longestStreak: longestStreak ?? this.longestStreak,
-      lastDecisionDate: lastDecisionDate ?? this.lastDecisionDate,
-      monthlyBudget: monthlyBudget ?? this.monthlyBudget,
+      lastDecisionDate: identical(lastDecisionDate, _noChange)
+          ? this.lastDecisionDate
+          : lastDecisionDate as DateTime?,
+      monthlyBudget: identical(monthlyBudget, _noChange)
+          ? this.monthlyBudget
+          : monthlyBudget as double?,
     );
   }
 

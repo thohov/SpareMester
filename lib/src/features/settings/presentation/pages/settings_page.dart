@@ -33,22 +33,31 @@ class SettingsPage extends ConsumerWidget {
                 context: context,
                 builder: (context) => AlertDialog(
                   title: Text(l10n.currency),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: CurrencyData.currencies.map((currency) {
-                      return RadioListTile<String>(
-                        title: Text('${currency.symbol} - ${currency.name}'),
-                        value: currency.code,
-                        groupValue: settings.currency,
-                        onChanged: (value) {
-                          ref.read(settingsProvider.notifier).updateCurrency(
-                                currency.code,
-                                currency.symbol,
-                              );
-                          Navigator.pop(context);
-                        },
-                      );
-                    }).toList(),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: CurrencyData.currencies.map((currency) {
+                        final isSelected = settings.currency == currency.code;
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text('${currency.symbol} - ${currency.name}'),
+                          trailing: isSelected
+                              ? Icon(
+                                  Icons.check,
+                                  color: Theme.of(context).colorScheme.primary,
+                                )
+                              : null,
+                          onTap: () {
+                            ref.read(settingsProvider.notifier).updateCurrency(
+                                  currency.code,
+                                  currency.symbol,
+                                );
+                            Navigator.pop(context);
+                          },
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               );
@@ -83,7 +92,6 @@ class SettingsPage extends ConsumerWidget {
                   actions: [
                     TextButton(
                       onPressed: () {
-                        controller.dispose();
                         Navigator.pop(context);
                       },
                       child: Text(l10n.cancel),
@@ -122,22 +130,32 @@ class SettingsPage extends ConsumerWidget {
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      RadioListTile<String>(
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
                         title: Text(l10n.norwegian),
-                        value: 'nb',
-                        groupValue: settings.languageCode,
-                        onChanged: (value) {
+                        trailing: settings.languageCode == 'nb'
+                            ? Icon(
+                                Icons.check,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : null,
+                        onTap: () {
                           ref
                               .read(settingsProvider.notifier)
                               .updateLanguage('nb');
                           Navigator.pop(context);
                         },
                       ),
-                      RadioListTile<String>(
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
                         title: Text(l10n.english),
-                        value: 'en',
-                        groupValue: settings.languageCode,
-                        onChanged: (value) {
+                        trailing: settings.languageCode == 'en'
+                            ? Icon(
+                                Icons.check,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : null,
+                        onTap: () {
                           ref
                               .read(settingsProvider.notifier)
                               .updateLanguage('en');
@@ -576,7 +594,7 @@ class SettingsPage extends ConsumerWidget {
                   color: Theme.of(context)
                       .colorScheme
                       .onSurface
-                      .withOpacity(0.6),
+                      .withValues(alpha: 0.6),
                   fontStyle: FontStyle.italic,
                 ),
                 textAlign: TextAlign.center,

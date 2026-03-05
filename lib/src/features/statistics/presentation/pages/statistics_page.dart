@@ -210,7 +210,7 @@ class _SavingsOverTimeChart extends StatelessWidget {
                       dotData: FlDotData(show: false),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.green.withOpacity(0.2),
+                        color: Colors.green.withValues(alpha: 0.2),
                       ),
                     ),
                   ],

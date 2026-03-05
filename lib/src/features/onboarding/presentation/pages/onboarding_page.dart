@@ -278,7 +278,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
           controlsPadding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
           controlsMargin: const EdgeInsets.all(0),
           dotsContainerDecorator: BoxDecoration(
-            color: theme.colorScheme.surface.withOpacity(0.5),
+            color: theme.colorScheme.surface.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(8),
           ),
           dotsDecorator: DotsDecorator(
@@ -305,7 +305,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       ),
       bodyTextStyle: TextStyle(
         fontSize: 16,
-        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
       ),
       imagePadding: const EdgeInsets.only(top: 40, bottom: 8),
       pageColor: Theme.of(context).colorScheme.surface,

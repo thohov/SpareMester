@@ -175,66 +175,65 @@ class _ProductCardState extends ConsumerState<ProductCard> {
               }
 
               // Show extended cooldown dialog
-              if (context.mounted) {
-                final extendedDays = await showDialog<int?>(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (context) => ExtendedCooldownDialog(
-                    productName: widget.product.name,
+              final extendedDays = await showDialog<int?>(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => ExtendedCooldownDialog(
+                  productName: widget.product.name,
+                ),
+              );
+
+              if (!mounted) return;
+
+              if (extendedDays != null && extendedDays > 0) {
+                // User wants to extend cooldown
+                await ref
+                    .read(productsProvider.notifier)
+                    .extendCooldown(widget.product, extendedDays);
+
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'OK! Du får se "${widget.product.name}" igjen om $extendedDays ${extendedDays == 1 ? 'dag' : 'dager'} ⏰'),
+                    duration: const Duration(seconds: 4),
+                  ),
+                );
+              } else if (extendedDays == -1) {
+                // User chose "Nei, ikke kjøp" - mark as avoided
+                final newAchievements = await ref
+                    .read(productsProvider.notifier)
+                    .markAsAvoided(widget.product);
+
+                if (!mounted) return;
+
+                // Show confetti animation!
+                _showConfetti();
+
+                // Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content:
+                        Text('Bra jobbet! Du unngikk ${widget.product.name} 🎉'),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 4),
                   ),
                 );
 
-                if (extendedDays != null && extendedDays > 0) {
-                  // User wants to extend cooldown
-                  await ref
-                      .read(productsProvider.notifier)
-                      .extendCooldown(widget.product, extendedDays);
+                // Show achievement celebration dialog if any achievements were unlocked
+                if (newAchievements.isNotEmpty) {
+                  // Wait a moment for confetti to start
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  if (!mounted) return;
 
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'OK! Du får se "${widget.product.name}" igjen om $extendedDays ${extendedDays == 1 ? 'dag' : 'dager'} ⏰'),
-                        duration: const Duration(seconds: 4),
+                  for (final achievement in newAchievements) {
+                    if (!mounted) break;
+                    await showDialog(
+                      context: context,
+                      builder: (context) => AchievementCelebrationDialog(
+                        achievement: achievement,
                       ),
                     );
-                  }
-                } else if (extendedDays == -1) {
-                  // User chose "Nei, ikke kjøp" - mark as avoided
-                  final newAchievements = await ref
-                      .read(productsProvider.notifier)
-                      .markAsAvoided(widget.product);
-
-                  // Show confetti animation!
-                  _showConfetti();
-
-                  // Show success message
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Bra jobbet! Du unngikk ${widget.product.name} 🎉'),
-                        backgroundColor: Colors.green,
-                        duration: const Duration(seconds: 4),
-                      ),
-                    );
-
-                    // Show achievement celebration dialog if any achievements were unlocked
-                    if (newAchievements.isNotEmpty) {
-                      // Wait a moment for confetti to start
-                      await Future.delayed(const Duration(milliseconds: 500));
-
-                      for (final achievement in newAchievements) {
-                        if (context.mounted) {
-                          await showDialog(
-                            context: context,
-                            builder: (context) => AchievementCelebrationDialog(
-                              achievement: achievement,
-                            ),
-                          );
-                        }
-                      }
-                    }
                   }
                 }
               }
@@ -254,41 +253,40 @@ class _ProductCardState extends ConsumerState<ProductCard> {
               }
 
               // Show pre-purchase questions dialog
-              if (context.mounted) {
-                final shouldPurchase = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => PrePurchaseDialog(
-                    productName: widget.product.name,
+              final shouldPurchase = await showDialog<bool>(
+                context: context,
+                builder: (context) => PrePurchaseDialog(
+                  productName: widget.product.name,
+                ),
+              );
+
+              if (!mounted) return;
+
+              if (shouldPurchase == true) {
+                // User confirmed purchase
+                final newAchievements = await ref
+                    .read(productsProvider.notifier)
+                    .markAsPlannedPurchase(widget.product);
+
+                if (!mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content:
+                        Text('Flott! Du kjøper ${widget.product.name} planlagt 👍'),
                   ),
                 );
 
-                if (shouldPurchase == true) {
-                  // User confirmed purchase
-                  final newAchievements = await ref
-                      .read(productsProvider.notifier)
-                      .markAsPlannedPurchase(widget.product);
-
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Flott! Du kjøper ${widget.product.name} planlagt 👍'),
+                // Show achievement celebration if any were unlocked
+                if (newAchievements.isNotEmpty) {
+                  for (final achievement in newAchievements) {
+                    if (!mounted) break;
+                    await showDialog(
+                      context: context,
+                      builder: (context) => AchievementCelebrationDialog(
+                        achievement: achievement,
                       ),
                     );
-
-                    // Show achievement celebration if any were unlocked
-                    if (newAchievements.isNotEmpty) {
-                      for (final achievement in newAchievements) {
-                        if (context.mounted) {
-                          await showDialog(
-                            context: context,
-                            builder: (context) => AchievementCelebrationDialog(
-                              achievement: achievement,
-                            ),
-                          );
-                        }
-                      }
-                    }
                   }
                 }
               }

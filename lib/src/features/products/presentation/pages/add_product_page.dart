@@ -359,7 +359,7 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
 
               // Category Dropdown
               DropdownButtonFormField<ProductCategory>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: 'Kategori',
                   prefixIcon: Text(_selectedCategory.emoji,

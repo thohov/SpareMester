@@ -92,7 +92,7 @@ class DashboardPage extends ConsumerWidget {
                       color: settings.currentStreak > 0
                           ? Colors.orange
                           : theme.colorScheme.onTertiaryContainer
-                              .withOpacity(0.5),
+                            .withValues(alpha: 0.5),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -122,7 +122,7 @@ class DashboardPage extends ConsumerWidget {
                               'Beste: ${settings.longestStreak} dager',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onTertiaryContainer
-                                    .withOpacity(0.7),
+                                    .withValues(alpha: 0.7),
                               ),
                             ),
                         ],

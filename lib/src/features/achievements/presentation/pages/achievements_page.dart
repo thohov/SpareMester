@@ -122,7 +122,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                   color: isUnlocked
                       ? null
                       : theme.colorScheme.surfaceContainerHighest
-                          .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
@@ -143,7 +143,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                         color: isUnlocked
                             ? theme.colorScheme.primary
                             : theme.colorScheme.onSurfaceVariant
-                                .withOpacity(0.4),
+                                .withValues(alpha: 0.4),
                       ),
                     ),
                     title: Text(
@@ -151,7 +151,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: isUnlocked
                             ? null
-                            : theme.colorScheme.onSurface.withOpacity(0.5),
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                         fontWeight:
                             isUnlocked ? FontWeight.bold : FontWeight.normal,
                       ),
@@ -165,7 +165,7 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: isUnlocked
                                 ? theme.colorScheme.onSurfaceVariant
-                                : theme.colorScheme.onSurface.withOpacity(0.4),
+                                : theme.colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
                         ),
                         if (isUnlocked) ...[
@@ -195,14 +195,14 @@ class _AchievementsPageState extends ConsumerState<AchievementsPage> {
                                 Icons.lock,
                                 size: 16,
                                 color: theme.colorScheme.onSurface
-                                    .withOpacity(0.4),
+                                    .withValues(alpha: 0.4),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 'Ikke låst opp ennå',
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: theme.colorScheme.onSurface
-                                      .withOpacity(0.4),
+                                      .withValues(alpha: 0.4),
                                 ),
                               ),
                             ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import 'package:pengespareapp/l10n/app_localizations.dart';
 import 'package:pengespareapp/src/core/database/database_service.dart';
 import 'package:pengespareapp/src/core/services/notification_service.dart';
@@ -20,8 +19,8 @@ void main() async {
   // Initialize timezone database
   try {
     tz.initializeTimeZones();
-    // Set local timezone to Oslo/Europe (Norway)
-    tz.setLocalLocation(tz.getLocation('Europe/Oslo'));
+    // Use device local timezone from platform. Do not hardcode region,
+    // otherwise notifications drift when user travels.
   } catch (e) {
     print('⚠️ Timezone init failed, using device default: $e');
   }
